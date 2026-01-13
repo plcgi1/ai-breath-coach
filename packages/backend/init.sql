@@ -1,0 +1,2 @@
+CREATE DATABASE ai_coach;
+

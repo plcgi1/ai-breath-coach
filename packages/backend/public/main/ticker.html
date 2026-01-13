@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Breathing Coach - Nebula</title>
+    <style>
+        body {
+            margin: 0; overflow: hidden; background-color: #050510;
+            height: 100vh; font-family: -apple-system, sans-serif;
+            color: white; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+        .ui-layer { position: relative; z-index: 10; text-align: center; pointer-events: none; }
+        #timer-num { font-size: 5rem; font-weight: 200; margin: 0; }
+        #phase-text { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 4px; opacity: 0.8; }
+
+        .controls {
+            position: absolute; bottom: 60px; z-index: 20;
+            display: none; flex-direction: column; gap: 15px; width: 220px;
+        }
+        .btn {
+            padding: 16px; border-radius: 35px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1); color: white; cursor: pointer;
+            backdrop-filter: blur(10px); pointer-events: auto; font-size: 1rem;
+        }
+        .btn-stop { color: #ff4444; border-color: rgba(255,68,68,0.3); margin-top: 10px; }
+        .active { display: flex; }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="ui-layer">
+    <div id="timer-num">СТАРТ</div>
+    <div id="phase-text">нажми, чтобы начать</div>
+</div>
+
+<div id="controls" class="controls">
+    <button id="pause-btn" class="btn">ПАУЗА</button>
+    <button id="stop-btn" class="btn btn-stop">СТОП</button>
+</div>
+
+<audio id="silence" loop src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjIwLjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEAAAAATGF2YzU4LjM1AAAAAAAAAAAAAAAAJAAAAAAAAAAAASAAK88AAAAAAAAD/84QAIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//OEBgAAAAA0gAAAAAAAAS8AAAAABAAALwAAAAAAAAAAAAAA"></audio>
+
+<script>
+    const exercise = {
+        settings: { inhale: 4, hold1: 0, exhale: 7, hold2: 8 },
+        rounds: 2
+    }
+
+    let state = 'stopped'; // stopped, playing, paused
+    let currentRound = 1;
+    let secondsInPhase = 0;
+    let phase = 'inhale';
+    let expansion = 1;
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const timerNum = document.getElementById('timer-num');
+    const phaseText = document.getElementById('phase-text');
+    const controls = document.getElementById('controls');
+    const pauseBtn = document.getElementById('pause-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const silence = document.getElementById('silence');
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const worker = new Worker('timer.worker.js');
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.angle = Math.random() * Math.PI * 2;
+            this.dist = Math.random() * 80 + 60;
+            this.size = Math.random() * 2 + 0.5;
+            this.speed = 0.002 + Math.random() * 0.005;
+        }
+        update(exp, isPaused) {
+            if (!isPaused) this.angle += this.speed;
+            this.currentDist = this.dist * exp;
+        }
+        draw(color) {
+            const x = canvas.width / 2 + Math.cos(this.angle) * this.currentDist;
+            const y = canvas.height / 2 + Math.sin(this.angle) * this.currentDist;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    const particles = Array.from({ length: 350 }, () => new Particle());
+
+    function playBell(freq) {
+        if (state !== 'playing') return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+    }
+
+    function handleTick() {
+        if (state !== 'playing') return;
+        secondsInPhase++;
+
+        const duration = exercise.settings[phase];
+        if (secondsInPhase >= duration) {
+            if (phase === 'inhale') phase = 'hold1';
+            else if (phase === 'hold1') phase = 'exhale';
+            else if (phase === 'exhale') phase = 'hold2';
+            else if (phase === 'hold2') {
+                if (currentRound < exercise.rounds) {
+                    currentRound++;
+                    phase = 'inhale';
+                } else {
+                    stopSession();
+                    return;
+                }
+            }
+            secondsInPhase = 0;
+            const freqs = { inhale: 880, hold1: 440, exhale: 220, hold2: 440 };
+            playBell(freqs[phase]);
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        const remaining = exercise.settings[phase] - secondsInPhase;
+        timerNum.innerText = remaining;
+        const labels = { inhale: 'Вдох', hold1: 'Задержка', exhale: 'Выдох', hold2: 'Пауза' };
+        phaseText.innerText = labels[phase] + ` (${currentRound}/${exercise.rounds})`;
+    }
+
+    function render() {
+        ctx.fillStyle = 'rgba(5, 5, 16, 0.2)'; // Эффект хвоста
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let color = 'rgba(100, 100, 100, 0.3)';
+        const isPaused = state === 'paused';
+
+        if (state === 'playing') {
+            const targetScale = phase === 'inhale' ? 2.2 : (phase === 'exhale' ? 0.7 : 1.4);
+            expansion += (targetScale - expansion) * 0.02;
+
+            if (phase === 'inhale') color = '#248bed';
+            else if (phase === 'exhale') color = '#4caf50';
+            else color = '#ff9800';
+        } else if (state === 'stopped') {
+            expansion += (1.0 - expansion) * 0.05;
+            color = '#ffffff';
+        }
+
+        particles.forEach(p => {
+            p.update(expansion, isPaused);
+            p.draw(color);
+        });
+        requestAnimationFrame(render);
+    }
+
+    canvas.onclick = () => {
+        if (state === 'stopped') {
+            state = 'playing';
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            silence.play();
+            worker.postMessage({ action: 'start' });
+            controls.classList.add('active');
+            playBell(880);
+            updateUI();
+        }
+    };
+
+    pauseBtn.onclick = () => {
+        if (state === 'playing') {
+            state = 'paused';
+            pauseBtn.innerText = 'ПРОДОЛЖИТЬ';
+            silence.volume = 0.1;
+            worker.postMessage({ action: 'pause' });
+        } else {
+            state = 'playing';
+            pauseBtn.innerText = 'ПАУЗА';
+            silence.volume = 1.0;
+            worker.postMessage({ action: 'start' });
+        }
+    };
+
+    stopBtn.onclick = stopSession;
+
+    function stopSession() {
+        state = 'stopped';
+        worker.postMessage({ action: 'stop' });
+        silence.pause();
+        silence.currentTime = 0;
+        controls.classList.remove('active');
+        timerNum.innerText = 'СТАРТ';
+        phaseText.innerText = 'нажми на сферу';
+        currentRound = 1; phase = 'inhale'; secondsInPhase = 0;
+    }
+
+    worker.onmessage = (e) => { if (e.data.type === 'tick') handleTick(); };
+    render();
+</script>
+</body>
+</html>

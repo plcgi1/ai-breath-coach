@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контент-план для BreathFlow</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        * { font-family: 'Nunito', sans-serif; }
+        .copy-btn:active { transform: scale(0.95); }
+        .post-card { transition: all 0.2s; }
+        .post-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">📝 Контент-план для BreathFlow</h1>
+            <p class="text-gray-400 text-lg">Готовые посты для продвижения в Telegram, TikTok, Instagram</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            <div class="bg-gray-800 rounded-xl p-4 text-center">
+                <p class="text-3xl font-bold text-blue-400">15</p>
+                <p class="text-sm text-gray-400">Готовых постов</p>
+            </div>
+            <div class="bg-gray-800 rounded-xl p-4 text-center">
+                <p class="text-3xl font-bold text-purple-400">5</p>
+                <p class="text-sm text-gray-400">Видео-идей</p>
+            </div>
+            <div class="bg-gray-800 rounded-xl p-4 text-center">
+                <p class="text-3xl font-bold text-green-400">10</p>
+                <p class="text-sm text-gray-400">Хэштегов</p>
+            </div>
+            <div class="bg-gray-800 rounded-xl p-4 text-center">
+                <p class="text-3xl font-bold text-orange-400">4</p>
+                <p class="text-sm text-gray-400">Сегмента</p>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="flex flex-wrap gap-2 mb-8">
+            <button onclick="filterPosts('all')" class="filter-btn px-4 py-2 rounded-full bg-blue-500 text-sm font-medium">Все посты</button>
+            <button onclick="filterPosts('anxiety')" class="filter-btn px-4 py-2 rounded-full bg-gray-700 text-sm font-medium">😰 Тревожность</button>
+            <button onclick="filterPosts('sleep')" class="filter-btn px-4 py-2 rounded-full bg-gray-700 text-sm font-medium">😴 Сон</button>
+            <button onclick="filterPosts('focus')" class="filter-btn px-4 py-2 rounded-full bg-gray-700 text-sm font-medium">🎯 Фокус</button>
+            <button onclick="filterPosts('viral')" class="filter-btn px-4 py-2 rounded-full bg-gray-700 text-sm font-medium">🔥 Виральные</button>
+        </div>
+        
+        <!-- Posts Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="postsGrid">
+            
+            <!-- Post 1: Hook for anxiety -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="anxiety viral">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs">😰 Тревожность</span>
+                    <span class="px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs">🔥 Виральный</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Telegram / Instagram</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post1">Просыпаешься в 3 ночи с колотящимся сердцем?
+
+Сделай это прямо сейчас:
+
+1. Вдохни на 4 счёта 
+2. Задержи дыхание на 7
+3. Медленно выдохни на 8
+
+Повтори 3 раза.
+
+Это техника 4-7-8 — используется Navy SEALs для мгновенного успокоения.
+
+Научное объяснение: длинный выдох активирует парасимпатическую нервную систему (режим "отдых и переваривание").
+
+Я сделал бесплатное приложение, которое ведёт тебя через эту технику с таймером и анимацией:
+
+👉 @breathflow_bot
+
+P.S. Сохрани пост — пригодится в 3 ночи 🌙</p>
+                </div>
+                <button onclick="copyPost('post1')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 2: Sleep story -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="sleep viral">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-indigo-500/20 text-indigo-400 text-xs">😴 Сон</span>
+                    <span class="px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs">🔥 История</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Telegram / ВК</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post2">История из личного опыта 👇
+
+2 года мучился бессонницей. 
+
+Ложился в 23:00 — засыпал в 2-3 ночи.
+Пробовал:
+❌ Мелатонин — не помог
+❌ ASMR — раздражал
+❌ Снотворные — боялся привыкания
+
+Что реально сработало:
+
+Дыхательная техника 4-7-8 перед сном.
+
+Вдох 4 сек → Задержка 7 сек → Выдох 8 сек
+
+Первую неделю — эффект 50/50.
+Через 2 недели — засыпаю за 10-15 минут стабильно.
+
+Почему работает: длинный выдох замедляет пульс и "выключает" мозг.
+
+Сделал приложение с таймером, чтобы не считать в голове:
+👉 @breathflow_bot (бесплатно, в Telegram)
+
+Если у тебя такая же проблема — попробуй. Терять нечего.</p>
+                </div>
+                <button onclick="copyPost('post2')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 3: Quick tip -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="focus">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs">🎯 Фокус</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Twitter / Telegram</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post3">Перед важным созвоном:
+
+📦 Квадратное дыхание (2 мин):
+
+Вдох 4 сек
+Пауза 4 сек  
+Выдох 4 сек
+Пауза 4 сек
+
+Повтори 6 раз.
+
+Этой технике учат в Google, Apple и McKinsey.
+
+Результат: ясная голова + спокойный голос.
+
+Приложение с таймером: @breathflow_bot</p>
+                </div>
+                <button onclick="copyPost('post3')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 4: Myth buster -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="viral">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs">🔥 Виральный</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Telegram / Instagram</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post4">"Медитация не для меня — не могу сидеть 20 минут"
+
+Знакомо?
+
+Хорошие новости: дыхательные практики ≠ медитация
+
+✅ Занимают 3-5 минут
+✅ Не нужно "очищать разум"
+✅ Эффект чувствуется сразу
+✅ Можно делать в метро, на работе, в туалете 😅
+
+3 минуты дыхания = 
+- Пульс снижается
+- Кортизол падает
+- Голова проясняется
+
+Это не магия — это физиология.
+
+Попробуй прямо сейчас: @breathflow_bot
+
+Спойлер: ты удивишься.</p>
+                </div>
+                <button onclick="copyPost('post4')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 5: Statistics -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="anxiety">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs">😰 Тревожность</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Telegram / LinkedIn</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post5">Статистика, которая меня шокировала:
+
+📊 76% людей испытывают стресс еженедельно
+📊 42% имеют проблемы со сном
+📊 Только 10% обращаются к психологу
+
+Что делают остальные 90%?
+
+Терпят. Пьют. Срываются на близких.
+
+А ведь есть бесплатное решение с научной базой:
+
+Контролируемое дыхание снижает кортизол на 25% за 5 минут
+(исследование Стэнфорда, 2023)
+
+Я сделал бесплатное приложение:
+👉 @breathflow_bot
+
+• 4 техники на разные случаи
+• Визуальный гид — не нужно считать
+• Статистика и достижения
+
+Поделись с тем, кому это нужно.</p>
+                </div>
+                <button onclick="copyPost('post5')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 6: Mom segment -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="anxiety viral">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-pink-500/20 text-pink-400 text-xs">👩‍👧 Для мам</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Мамские чаты / Instagram</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post6">Когда дети довели до белого каления:
+
+1. Уйди в ванную (или туалет 😅)
+2. Закрой дверь
+3. Сделай 6 глубоких вдохов-выдохов по схеме:
+
+Вдох 4 сек → Задержка 4 сек → Выдох 4 сек
+
+3 минуты = ты снова человек, а не орущий монстр 🙈
+
+Это не слабость — это забота о себе и детях.
+
+Кстати, есть бесплатное приложение с таймером прямо в Telegram: @breathflow_bot
+
+Сохрани — пригодится 💜</p>
+                </div>
+                <button onclick="copyPost('post6')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 7: Before presentation -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="focus anxiety">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs">🎯 Фокус</span>
+                    <span class="px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs">💼 Работа</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">LinkedIn / Telegram</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post7">Лайфхак для тех, у кого трясутся руки перед презентацией:
+
+За 5 минут до выступления:
+
+1. Найди тихое место (туалет подойдёт)
+2. Сделай 6 циклов квадратного дыхания:
+   • Вдох 4 секунды
+   • Задержка 4 секунды
+   • Выдох 4 секунды
+   • Пауза 4 секунды
+
+Почему работает:
+- Замедляется пульс
+- Снижается адреналин
+- Голос перестаёт дрожать
+
+Этому учат в спецназе и топ-компаниях.
+
+Приложение с таймером: @breathflow_bot
+(бесплатно, работает в Telegram)
+
+Сохрани перед следующим созвоном 📌</p>
+                </div>
+                <button onclick="copyPost('post7')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 8: Comparison -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="viral">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs">🔥 Сравнение</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Telegram / Twitter</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post8">Calm — $70/год
+Headspace — $70/год
+BreathFlow — $0
+
+При этом:
+✅ На русском языке
+✅ Без установки (работает в Telegram)
+✅ Те же научные техники
+✅ Открывается за 3 секунды
+
+Зачем платить $70 за то, что можно получить бесплатно?
+
+👉 @breathflow_bot
+
+P.S. Да, есть PRO-версия с продвинутыми курсами. Но базовые техники — бесплатны навсегда.</p>
+                </div>
+                <button onclick="copyPost('post8')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 9: Challenge -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="viral">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">🎯 Челлендж</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">TikTok / Reels / Telegram</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post9">7-дневный челлендж:
+
+3 минуты дыхания каждое утро.
+
+Что изменится:
+День 1-2: "Хм, интересно"
+День 3-4: "Вроде спокойнее"
+День 5-7: "Не могу без этого начать день"
+
+Присоединяйся:
+👉 @breathflow_bot
+
+Отмечай меня в сторис с результатами!
+
+#breathflow #дыхание #7дней</p>
+                </div>
+                <button onclick="copyPost('post9')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+            <!-- Post 10: Energy -->
+            <div class="post-card bg-gray-800 rounded-xl p-5 border border-gray-700" data-category="focus">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs">⚡ Энергия</span>
+                </div>
+                <div class="text-sm text-gray-400 mb-2">Telegram / Instagram</div>
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <p class="whitespace-pre-line text-sm" id="post10">Альтернатива третьей чашке кофе ☕
+
+Энергетическое дыхание (2 минуты):
+
+• Быстрый глубокий вдох (2 сек)
+• Резкий полный выдох (2 сек)
+• Повторить 20 раз
+
+Эффект:
+- Кислород → в мозг
+- Адреналин → активируется
+- Ты → проснулся
+
+Работает лучше кофе, без побочек.
+
+Попробуй: @breathflow_bot (техника "Энергия")
+
+Спасибо мне скажешь в 15:00, когда все вокруг уснут 😴</p>
+                </div>
+                <button onclick="copyPost('post10')" class="copy-btn w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-medium">
+                    📋 Копировать
+                </button>
+            </div>
+            
+        </div>
+        
+        <!-- Video Ideas Section -->
+        <div class="mt-16">
+            <h2 class="text-2xl font-bold mb-6">🎬 Идеи для видео (TikTok / Reels)</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <div class="text-4xl mb-3">🎬</div>
+                    <h3 class="font-bold mb-2">Видео #1: POV паническая атака</h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        <strong>Хук:</strong> "POV: паническая атака в 3 ночи"<br>
+                        <strong>Контент:</strong> Показать экран телефона, открытие бота, следование за кругом дыхания<br>
+                        <strong>Финал:</strong> "Работает за 3 минуты"
+                    </p>
+                    <div class="text-xs text-gray-500">Формат: 30-45 сек</div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <div class="text-4xl mb-3">🎬</div>
+                    <h3 class="font-bold mb-2">Видео #2: До и после</h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        <strong>Хук:</strong> "Я ДО важного созвона vs ПОСЛЕ 3 минут дыхания"<br>
+                        <strong>Контент:</strong> Split screen — нервный vs спокойный<br>
+                        <strong>Финал:</strong> Показать приложение
+                    </p>
+                    <div class="text-xs text-gray-500">Формат: 15-20 сек</div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <div class="text-4xl mb-3">🎬</div>
+                    <h3 class="font-bold mb-2">Видео #3: Эксперимент</h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        <strong>Хук:</strong> "Измеряю пульс ДО и ПОСЛЕ дыхательной техники"<br>
+                        <strong>Контент:</strong> Показать Apple Watch/пульсометр → техника → результат<br>
+                        <strong>Финал:</strong> "-15 ударов за 3 минуты"
+                    </p>
+                    <div class="text-xs text-gray-500">Формат: 45-60 сек</div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <div class="text-4xl mb-3">🎬</div>
+                    <h3 class="font-bold mb-2">Видео #4: Мама в туалете</h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        <strong>Хук:</strong> "Когда дети довели — закрываюсь в туалете и делаю это"<br>
+                        <strong>Контент:</strong> Юмор + показать технику<br>
+                        <strong>Финал:</strong> "Выхожу человеком"
+                    </p>
+                    <div class="text-xs text-gray-500">Формат: 20-30 сек</div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <div class="text-4xl mb-3">🎬</div>
+                    <h3 class="font-bold mb-2">Видео #5: Обзор приложения</h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        <strong>Хук:</strong> "Нашла бесплатную замену Calm на русском"<br>
+                        <strong>Контент:</strong> Screen recording + голос<br>
+                        <strong>Финал:</strong> "Ссылка в био"
+                    </p>
+                    <div class="text-xs text-gray-500">Формат: 30-45 сек</div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Hashtags Section -->
+        <div class="mt-16">
+            <h2 class="text-2xl font-bold mb-6"># Хэштеги для постов</h2>
+            
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold mb-3 text-blue-400">Русскоязычные:</h3>
+                        <p class="text-sm text-gray-300 leading-relaxed" id="hashtagsRu">
+                            #дыхание #дыхательныепрактики #антистресс #тревожность #медитация #осознанность #здоровье #сон #бессонница #психология #саморазвитие #ментальноездоровье #релакс #йога #breathwork
+                        </p>
+                        <button onclick="copyText('hashtagsRu')" class="mt-3 px-4 py-2 rounded-lg bg-blue-500/20 text-blue-400 text-sm">📋 Копировать</button>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold mb-3 text-purple-400">Англоязычные:</h3>
+                        <p class="text-sm text-gray-300 leading-relaxed" id="hashtagsEn">
+                            #breathwork #breathing #meditation #anxiety #mentalhealth #wellness #mindfulness #sleep #insomnia #stress #calm #relaxation #selfcare #health #478breathing
+                        </p>
+                        <button onclick="copyText('hashtagsEn')" class="mt-3 px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 text-sm">📋 Копировать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Posting Schedule -->
+        <div class="mt-16">
+            <h2 class="text-2xl font-bold mb-6">📅 Расписание постов (первые 2 недели)</h2>
+            
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-700">
+                            <th class="py-3 px-4 text-left">День</th>
+                            <th class="py-3 px-4 text-left">Платформа</th>
+                            <th class="py-3 px-4 text-left">Тип контента</th>
+                            <th class="py-3 px-4 text-left">Время</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-700/50">
+                            <td class="py-3 px-4">Пн</td>
+                            <td class="py-3 px-4">Telegram каналы</td>
+                            <td class="py-3 px-4">Пост #1 (тревожность)</td>
+                            <td class="py-3 px-4">10:00-12:00</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/50">
+                            <td class="py-3 px-4">Вт</td>
+                            <td class="py-3 px-4">TikTok/Reels</td>
+                            <td class="py-3 px-4">Видео #1</td>
+                            <td class="py-3 px-4">18:00-20:00</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/50">
+                            <td class="py-3 px-4">Ср</td>
+                            <td class="py-3 px-4">Мамские чаты</td>
+                            <td class="py-3 px-4">Пост #6</td>
+                            <td class="py-3 px-4">11:00-13:00</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/50">
+                            <td class="py-3 px-4">Чт</td>
+                            <td class="py-3 px-4">LinkedIn</td>
+                            <td class="py-3 px-4">Пост #7 (работа)</td>
+                            <td class="py-3 px-4">09:00-10:00</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/50">
+                            <td class="py-3 px-4">Пт</td>
+                            <td class="py-3 px-4">TikTok/Reels</td>
+                            <td class="py-3 px-4">Видео #2</td>
+                            <td class="py-3 px-4">19:00-21:00</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/50">
+                            <td class="py-3 px-4">Сб</td>
+                            <td class="py-3 px-4">Instagram Stories</td>
+                            <td class="py-3 px-4">Опрос + ссылка</td>
+                            <td class="py-3 px-4">12:00-14:00</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4">Вс</td>
+                            <td class="py-3 px-4">Telegram</td>
+                            <td class="py-3 px-4">Пост #2 (сон)</td>
+                            <td class="py-3 px-4">21:00-22:00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Where to Post -->
+        <div class="mt-16 mb-12">
+            <h2 class="text-2xl font-bold mb-6">📍 Где постить (бесплатно)</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <h3 class="font-bold mb-3">Telegram чаты</h3>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>• Чаты о психологии</li>
+                        <li>• Медитация и йога</li>
+                        <li>• Мамские чаты</li>
+                        <li>• IT-сообщества (стресс!)</li>
+                        <li>• ЗОЖ и биохакинг</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <h3 class="font-bold mb-3">Соцсети</h3>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>• TikTok (виральные видео)</li>
+                        <li>• Instagram Reels</li>
+                        <li>• YouTube Shorts</li>
+                        <li>• ВКонтакте</li>
+                        <li>• Twitter/X</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                    <h3 class="font-bold mb-3">Профессиональные</h3>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>• LinkedIn</li>
+                        <li>• Habr (статья)</li>
+                        <li>• vc.ru (история)</li>
+                        <li>• Pikabu</li>
+                        <li>• Reddit (r/anxiety)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script>
+        function copyPost(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text);
+            
+            event.target.textContent = '✓ Скопировано!';
+            event.target.classList.remove('bg-blue-500');
+            event.target.classList.add('bg-green-500');
+            
+            setTimeout(() => {
+                event.target.textContent = '📋 Копировать';
+                event.target.classList.remove('bg-green-500');
+                event.target.classList.add('bg-blue-500');
+            }, 2000);
+        }
+        
+        function copyText(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text);
+            alert('Скопировано!');
+        }
+        
+        function filterPosts(category) {
+            const posts = document.querySelectorAll('.post-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-blue-500');
+                btn.classList.add('bg-gray-700');
+            });
+            event.target.classList.remove('bg-gray-700');
+            event.target.classList.add('bg-blue-500');
+            
+            posts.forEach(post => {
+                if (category === 'all') {
+                    post.style.display = 'block';
+                } else {
+                    const categories = post.dataset.category || '';
+                    if (categories.includes(category)) {
+                        post.style.display = 'block';
+                    } else {
+                        post.style.display = 'none';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

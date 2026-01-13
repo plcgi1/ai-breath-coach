@@ -1,0 +1,15 @@
+{
+  "name": "ai-breath-coach",
+  "description": "ai-breath-coach",
+  "version": "1.0.1",
+  "repository": "",
+  "author": "aliaksandr <plcgi1@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

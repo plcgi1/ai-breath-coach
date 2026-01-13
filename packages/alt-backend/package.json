@@ -1,0 +1,29 @@
+{
+  "name": "breathflow-api",
+  "version": "3.0.0",
+  "description": "BreathFlow API Server - Breathing techniques with AI + Telegram Stars Payments",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "breathing",
+    "meditation",
+    "telegram",
+    "webapp",
+    "api",
+    "telegram-stars",
+    "payments"
+  ],
+  "author": "BreathFlow",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: var(--tg-theme-bg-color, #fff);
+            --text: var(--tg-theme-text-color, #000);
+            --btn: var(--tg-theme-button-color, #248bed);
+            --btn-text: var(--tg-theme-button-text-color, #fff);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        #circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--btn);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--btn-text);
+            transition: all 0.5s ease;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        #circle.inhale { transform: scale(1.5); }
+        #status { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<audio id="silence-keeper" loop>
+    <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjIwLjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEAAAAATGF2YzU4LjM1AAAAAAAAAAAAAAAAJAAAAAAAAAAAASAAK88AAAAAAAAD/84QAIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//OEBgAAAAA0gAAAAAAAAS8AAAAABAAALwAAAAAAAAAAAAAA" type="audio/mpeg">
+</audio>
+<div id="circle">ВДОХНУТЬ</div>
+<p id="status">Нажми на круг для теста</p>
+
+<script>
+    const urls = {
+        getReady: '/api/breathing/:slug',
+        getAi: '/api/breathing/ai'
+    }
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const circle = document.getElementById('circle');
+    const status = document.getElementById('status');
+    circle.addEventListener('click', async () => {
+        // 1. Сразу даем тактильный отклик (Medium)
+        tg.HapticFeedback.impactOccurred('medium');
+
+        // Визуальный эффект
+        circle.classList.add('inhale');
+        status.innerText = "Анализируем состояние...";
+
+        try {
+            const response = await fetch(urls.getAi, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `twa ${tg.initData}`
+                },
+                body: JSON.stringify({ request: "Я в шоке и торможу" })
+            });
+
+            const data = await response.json();
+
+            // 2. Успех! Короткая двойная вибрация (Notification Success)
+            tg.HapticFeedback.notificationOccurred('success');
+
+            status.innerText = `Рекомендация: ${data.technique}`;
+
+            setTimeout(() => {
+                circle.classList.remove('inhale');
+            }, 2000);
+
+        } catch (e) {
+            // 3. Ошибка — виброотклик типа "error"
+            tg.HapticFeedback.notificationOccurred('error');
+            status.innerText = "Ошибка доступа";
+        }
+    });
+</script>
+</body>
+</html>

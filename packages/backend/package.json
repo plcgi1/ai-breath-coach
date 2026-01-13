@@ -1,0 +1,81 @@
+{
+  "name": "abc-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "src",
+  "private": true,
+  "testRegex": ".*\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "collectCoverageFrom": [
+    "**/*.(t|j)s"
+  ],
+  "coverageDirectory": "../coverage",
+  "testEnvironment": "node",
+  "scripts": {
+    "build": "nest build",
+    "format": "npx prettier --write \"{src/**/*.ts,migrations/*.js}\"",
+    "lint": "eslint --config .eslint.mjs",
+    "start-local": "NODE_ENV=local nest start --debug 0.0.0.0:9229 --watch",
+    "start-dev": "NODE_ENV=development nest start --debug 0.0.0.0:9229 --watch",
+    "start-production": "NODE_ENV=production rm -rf dist && yarn build && node dist/src/main",
+    "patch-version": "npm version patch --no-git-tag-version",
+    "migrate-up": "node migration.js",
+    "migrate-gen": "npx sequelize migration:generate --name $1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/community": "^1.1.0",
+    "@langchain/core": "^1.1.6",
+    "@langchain/langgraph": "^1.0.7",
+    "@langchain/langgraph-checkpoint-mongodb": "^1.0.0",
+    "@langchain/ollama": "^1.1.0",
+    "@nestjs/common": "^11.1.10",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.10",
+    "@nestjs/mongoose": "^11.0.4",
+    "@nestjs/platform-express": "^11.1.10",
+    "@nestjs/sequelize": "^11.0.1",
+    "@nestjs/serve-static": "^5.0.4",
+    "@nestjs/swagger": "^11.2.4",
+    "@rekog/mcp-nest": "^1.8.4",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "dotenv": "^16.6.1",
+    "mongoose": "^9.0.2",
+    "nestjs-pino": "^4.5.0",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.1.3",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.3",
+    "sequelize-typescript": "^2.1.6",
+    "umzug": "^3.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.14",
+    "@nestjs/schematics": "^11.0.9",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.0.3",
+    "@types/sequelize": "^4.28.20",
+    "eslint": "^9.39.2",
+    "jest": "^30.2.0",
+    "migrate-mongo": "^14.0.7",
+    "prettier": "^3.7.4",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript-eslint": "^8.50.1"
+  }
+}

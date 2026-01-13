@@ -1,0 +1,59 @@
+import { AppConfig } from "../interfaces/config.interface";
+import * as dotenv from "dotenv";
+import * as pack from "../../../package.json";
+
+dotenv.config();
+
+export const defaultConfig: AppConfig = {
+  env: process.env.NODE_ENV || "development",
+  port: parseInt(process.env.PORT, 10) || 4848,
+  version: pack.version,
+  ip: "0.0.0.0",
+  logging: {
+    level: "debug",
+    transport: {
+      target: "pino-pretty",
+    },
+    serializers: {
+      req: (r) => {
+        delete r.headers;
+        return r;
+      },
+      res: (r) => {
+        delete r.headers;
+        return r;
+      },
+    },
+  },
+
+  ollama: {
+    baseUrl: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
+    model: process.env.OLLAMA_MODEL || "llama2",
+    options: {
+      temperature: 0,
+    },
+  },
+
+  redis: {
+    url: process.env.REDIS_URL,
+  },
+
+  mongo: {
+    uri: process.env.MONGO_URI,
+    dbName: process.env.MONGO_DBNAME,
+    checkpointCollectionName: "checkpoints",
+    checkpointWritesCollectionName: "checkpoint_writes",
+  },
+
+  langGraph: {
+    workflow: {
+      maxIterations: 3,
+      maxScore: 8,
+    },
+  },
+
+  authGuard: {
+    source: "tg",
+    apiKey: process.env.TELEGRAM_BOT_TOKEN,
+  },
+};

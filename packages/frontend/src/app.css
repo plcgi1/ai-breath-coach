@@ -1,0 +1,34 @@
+:root {
+    /* Цветовая палитра Telegram */
+    --tg-bg: #f4f4f7;
+    --tg-card-bg: #ffffff;
+    --tg-text: #000000;
+    --tg-hint: #8e8e93;
+    --tg-link: #0088cc;
+    --tg-button-text: #ffffff;
+
+    /* Акценты упражнений */
+    --color-fire: #ff8c42;
+    --color-energy: #4a90e2;
+    --color-call: #9b51e0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--tg-bg);
+    color: var(--tg-text);
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    user-select: none; /* Запрещаем выделение текста */
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+}
+
+/* Общий стиль для модальных окон (Bottom Sheets) */
+.modal-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
