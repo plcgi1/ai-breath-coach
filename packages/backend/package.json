@@ -19,8 +19,10 @@
   ],
   "coverageDirectory": "../coverage",
   "testEnvironment": "node",
+  
   "scripts": {
     "build": "nest build",
+    "test": "jest",
     "format": "npx prettier --write \"{src/**/*.ts,migrations/*.js}\"",
     "lint": "eslint --config .eslint.mjs",
     "start-local": "NODE_ENV=local nest start --debug 0.0.0.0:9229 --watch",
@@ -46,7 +48,9 @@
     "@nestjs/sequelize": "^11.0.1",
     "@nestjs/serve-static": "^5.0.4",
     "@nestjs/swagger": "^11.2.4",
+    "@nestjs/testing": "^11.1.11",
     "@rekog/mcp-nest": "^1.8.4",
+    "axios": "^1.13.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "dotenv": "^16.6.1",

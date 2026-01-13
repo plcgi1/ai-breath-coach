@@ -20,13 +20,13 @@ export const up = async ({ context: queryInterface }) => {
       },
     },
     price: {
-      type: DataTypes.DECIMAL(10, 9),
+      type: DataTypes.BIGINT,
       allowNull: false,
     },
     period: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: "day", // week month year lifetime
+      defaultValue: 1,
     },
     name: {
       type: DataTypes.STRING,

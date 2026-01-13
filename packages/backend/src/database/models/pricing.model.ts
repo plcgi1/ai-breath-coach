@@ -30,6 +30,9 @@ export class Pricing extends Model {
   @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 1 })
+  period: number;
+
   @Column({ type: DataType.STRING, allowNull: false })
   currency: string;
 }
