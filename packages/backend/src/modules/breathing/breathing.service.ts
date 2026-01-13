@@ -31,15 +31,15 @@ export class BreathingService {
 
   async getList(): Promise<Technique[]> {
     const techniques = await this.techniqueModel.findAll({
-      where: { status: "active" },
+      order: ["sortBy"],
     });
-
+    // TODO обогатить параметрами из pricing и policy
     return techniques;
   }
 
   async getBaseTechniques(): Promise<Technique[]> {
     const techniques = await this.techniqueModel.findAll({
-      where: { status: "active" },
+      order: ["sortBy"],
     });
 
     return techniques;

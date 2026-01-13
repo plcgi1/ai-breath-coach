@@ -36,17 +36,14 @@ export class Technique extends Model {
   // TODO конкретизировать
   settings: Record<string, any>;
 
-  @Column({ type: DataType.INTEGER })
-  rounds: number;
-
-  @Column({ type: DataType.STRING, defaultValue: "active", allowNull: false })
-  status: string;
-
   @Column({ type: DataType.STRING, allowNull: false })
   color: string;
 
   @Column({ type: DataType.STRING, allowNull: false })
   icon: string;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  sortBy: string;
 
   @HasMany(() => Statistics)
   stats: Statistics[];
