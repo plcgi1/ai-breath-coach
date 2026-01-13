@@ -1,5 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { haptic } from '../telegram.js';
+import { limits } from './limits.js';
 
 const TIMER_INTERVAL = 1000; // ms
 
@@ -29,8 +30,17 @@ export const breathingController = {
         currentMood.set(mood);
     },
 
-    start(patterns) {
+    async start(patterns, techniqueId = null) {
         if (!patterns || patterns.length === 0) return;
+        
+        // Проверяем лимит перед началом сессии
+        const canStart = await limits.startSession();
+        if (!canStart) {
+            // Показываем сообщение о лимите или открываем панель покупки
+            console.log("Daily limit reached!");
+            return;
+        }
+        
         sessionQueue = patterns;
         currentSegmentIdx = 0;
         isBreathing.set(true);
@@ -39,7 +49,11 @@ export const breathingController = {
     },
 
     runSegment(idx) {
-        if (idx >= sessionQueue.length) return this.stop();
+        if (idx >= sessionQueue.length) {
+            // Завершаем сессию
+            limits.completeSession(sessionQueue[0]?.id || null);
+            return this.stop();
+        }
         
         currentSegmentIdx = idx;
         const segment = sessionQueue[idx];

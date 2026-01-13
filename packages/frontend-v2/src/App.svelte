@@ -17,9 +17,11 @@
     import { progress, streak, totalMinutes, totalSessions } from './lib/stores/progress.js';
     import { currentMood, isBreathing, breathingController } from './lib/stores/breathing.js';
     import { appStatus } from './lib/stores/appState.js';
+    import { limitReached, canStartSession } from './lib/stores/limits.js';
+    import { baseTechniques, loadBaseTechniques } from './lib/stores/techniques.js';
     import MoodSelector from './components/MoodSelector.svelte';
     import BreathingCircle from './components/BreathingCircle.svelte';
-    import ModesPanel from './trash/ModesPanel.svelte';
+    import ModesPanel from './components/ModesPanel.svelte';
     import AIPanel from './components/AIPanel.svelte';
     import StatsPanel from './components/StatsPanel.svelte';
     import PurchasePanel from './components/PurchasePanel.svelte';
@@ -89,11 +91,14 @@
         showPurchase = true;
     }
     
-    onMount(() => {
+    onMount(async () => {
         initTelegram();
         applyTgTheme();
         user.setFromTelegram();
         progress.load();
+        
+        // Загружаем все техники с сервера
+        await loadBaseTechniques();
     });
 </script>
 

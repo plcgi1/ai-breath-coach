@@ -4,28 +4,45 @@
     import { haptic } from '../lib/telegram.js';
     import { FALLBACK_TECHNIQUES } from '../lib/data/fallbackTechniques.js';
     import { api } from '../lib/api.js';
+    import { user } from '../lib/stores/user.js';
+    import { baseTechniques } from '../lib/stores/techniques.js';
     import { t } from "../lib/i18n";
 
     const dispatch = createEventDispatcher();
     let moods = [];
+    let limitReached = false;
 
     onMount(async () => {
         try {
-            const data = await api.getBaseTechniques();
-            // Если данные пришли и они не пусты — используем их
-            if (data && data.length > 0) {
-                moods = data.map(m => ({
-                    ...m,
+            // Сначала пробуем получить layout и лимиты
+            const layoutData = await api.getUserLayoutAndLimits();
+            
+            if (layoutData && layoutData.layout) {
+                moods = layoutData.layout.map((mood, index) => ({
+                    ...mood,
                     // Добавляем иконку и цвет, если их нет в БД
-                    icon: m.icon || '🧘',
-                    color: m.color || 'from-gray-500 to-slate-600'
+                    icon: mood.icon || '🧘',
+                    color: mood.color || 'from-gray-500 to-slate-600'
                 }));
+                
+                limitReached = layoutData.limitReached || false;
             } else {
-                // Если API вернул пустоту — включаем заглушки
-                moods = FALLBACK_TECHNIQUES;
+                // Если API вернул пустоту — используем техники из store
+                baseTechniques.subscribe(techniques => {
+                    if (techniques && techniques.length > 0) {
+                        // Берем первые 3 техники для отображения
+                        moods = techniques.slice(0, 3).map(m => ({
+                            ...m,
+                            icon: m.icon || '🧘',
+                            color: m.color || 'from-gray-500 to-slate-600'
+                        }));
+                    } else {
+                        moods = FALLBACK_TECHNIQUES;
+                    }
+                })();
             }
         } catch (error) {
-            console.error("Ошибка загрузки, используем fallbacks:", error);
+            console.error("Ошибка загрузки layout, используем fallbacks:", error);
             moods = FALLBACK_TECHNIQUES;
         }
     });
@@ -34,6 +51,12 @@
     let isLongPress = false;
     
     function handleTouchStart(mood) {
+        // Проверяем лимит перед началом практики
+        if (limitReached && !$user.isPremium) {
+            dispatch('purchase');
+            return;
+        }
+        
         breathingController.setMood(mood.slug);
         isLongPress = false;
         longPressTimer = setTimeout(() => {

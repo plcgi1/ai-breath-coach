@@ -35,6 +35,21 @@ export const api = {
         return response;
     },
 
+    async getUserLayoutAndLimits() {
+        const response = await fetchAPI('/user/layout-and-limits');
+        
+        if (!response) throw new Error('Network error');
+        
+        return response;
+    },
+
+    async updateSlot(slotIndex, techniqueId) {
+        return await fetchAPI('/user/update-slot', {
+            method: 'PATCH',
+            body: JSON.stringify({ slot_index: slotIndex, technique_id: techniqueId })
+        });
+    }
+
     async getAiRecommendation(query) {
         const result = await fetchAPI('/breathing/ai', {
             method: 'POST',

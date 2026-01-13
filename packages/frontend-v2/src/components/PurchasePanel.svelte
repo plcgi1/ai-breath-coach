@@ -3,6 +3,7 @@
     import { user } from '../lib/stores/user.js';
     import { tg, haptic } from '../lib/telegram.js';
     import { api } from '../lib/api.js';
+    import { limits } from '../lib/stores/limits.js';
     
     const dispatch = createEventDispatcher();
     
@@ -19,6 +20,8 @@
         if (!tg) {
             // Демо режим
             user.activatePremium('demo');
+            // Сбрасываем лимиты для премиум-пользователя
+            limits.resetDailyLimits();
             haptic('success');
             dispatch('close');
             return;
@@ -31,6 +34,8 @@
                 if (status === 'paid') {
                     haptic('success');
                     user.activatePremium(product.id);
+                    // Сбрасываем лимиты для премиум-пользователя
+                    limits.resetDailyLimits();
                     dispatch('close');
                 }
             });
