@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { haptic } from '../telegram.js';
 
+const STORAGE_KEY = 'breathing_state';
 const TIMER_INTERVAL = 1000; // ms
 
 export const currentMood = writable('focus');

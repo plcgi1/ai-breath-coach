@@ -39,7 +39,15 @@ export const up = async ({ context: queryInterface }) => {
       type: DataTypes.JSONB,
       allowNull: false,
     },
-    rounds: {
+    icon: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    color: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    sortBy: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

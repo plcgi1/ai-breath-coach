@@ -1,0 +1,71 @@
+@startuml
+skinparam actorStyle awesome
+autonumber
+skinparam PackageBackgroundColor #f9f9f9
+skinparam SequenceGroupBodyBackgroundColor #FFFFFF99
+
+header Логика доступа и монетизации Breathing App
+footer Страница %page% из %lastpage%
+
+actor "Пользователь" as User
+participant "Svelte Frontend" as App
+participant "Backend API" as API
+database "PostgreSQL" as DB
+
+== 1. Инициализация (Получение Layout) ==
+
+User -> App: Открывает приложение
+App -> API: GET /api/user/layout
+note right of API: Определение прав и структуры 3-х слотов
+
+API -> DB: Проверка: is_lifetime?
+API -> DB: SELECT slug FROM UserTechniques\nWHERE user_id = ? AND (expired_at > NOW() OR expired_at IS NULL)
+API -> DB: SELECT COUNT(*) FROM Sessions\nWHERE user_id = ? AND date = current_date
+DB --> API: Статус, купленные техники, кол-во сессий сегодня
+
+alt Тариф: FREE (Базовый)
+    API --> App: { slots: [base3], limitReached: true/false, isPRO: false }
+else Тариф: ITEM_PURCHASE (N-техник на срок)
+    API --> App: { slots: [base2 + purchased1], limitReached: false, isPRO: false }
+else Тариф: LIFETIME (Вечный)
+    API --> App: { slots: [custom3], limitReached: false, isPRO: true }
+end
+
+== 2. Запуск упражнения ==
+
+User -> App: Нажимает "СТАРТ" (BreathingCircle)
+App -> App: breathingController.init()
+
+alt Проверка доступа
+    
+    group Доступ закрыт (Лимит 1 сессия в день)
+        App -> App: if (!isPRO && !tech.purchased && limitReached)
+        App -> User: Haptic('error') + Открыть PurchasePanel
+    end
+    
+    group Доступ разрешен (Успех)
+        App -> App: Запуск таймеров (breathing.js)
+        User -> App: Выполняет дыхание
+        
+        App -> API: POST /api/sessions/log { slug, duration }
+        API -> DB: INSERT INTO Sessions (user_id, slug, date)
+        API --> App: 201 Created (Сессия сохранена)
+        
+        ' note right of App
+        '     Для Free-юзера: при следующем 
+        '     запросе limitReached станет true
+        ' end
+    end
+end
+
+== 3. Кастомизация слотов (PRO/Lifetime) ==
+
+User -> App: Открывает ModesPanel (Модалка всех техник)
+User -> App: Выбирает "Zen Flow" -> "Закрепить в Слот 2"
+
+App -> API: PATCH /api/user/layout { slot_index: 1, slug: 'zen-flow-pro' }
+API -> DB: UPDATE UserLayout SET slug = 'zen-flow-pro'\nWHERE user_id = ? AND slot_index = 1
+API --> App: 200 OK (Layout обновлен)
+App -> App: MoodSelector мгновенно меняет кнопку
+
+@enduml
