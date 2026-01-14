@@ -23,6 +23,11 @@ async function bootstrap() {
     allowedHeaders:
       "Content-Type, Accept, Authorization, X-User-Id, referer, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, user-agent",
   });
+  // app.enableCors({
+  //   origin: 'https://ваш-фронтенд-на-vercel-или-render.com',
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   credentials: true,
+  // });
 
   // Глобальная валидация DTO
   app.useGlobalPipes(

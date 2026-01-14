@@ -19,7 +19,6 @@
     import { appStatus } from './lib/stores/appState.js';
     import MoodSelector from './components/MoodSelector.svelte';
     import BreathingCircle from './components/BreathingCircle.svelte';
-    import ModesPanel from './trash/ModesPanel.svelte';
     import AIPanel from './components/AIPanel.svelte';
     import StatsPanel from './components/StatsPanel.svelte';
     import PurchasePanel from './components/PurchasePanel.svelte';
@@ -165,14 +164,7 @@
     {/if}
     
     <!-- Панели -->
-    {#if showModes}
-        <ModesPanel 
-            mood={selectedMoodForModes}
-            on:close={() => showModes = false}
-            on:select={handleSelectMode}
-            on:purchase={openPurchase}
-        />
-    {/if}
+    
     
     {#if showAI}
         <AIPanel 

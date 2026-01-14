@@ -1,0 +1,97 @@
+export default {
+  en: {
+    appName: 'Ether AI',
+    appFullName: 'ETHER AI: Breathing & Abundance',
+    'homepage.inhale': 'Inhale',
+    'homepage.exhale': 'Exhale',
+    'homepage.holdIn': 'Hold In',
+    'homepage.holdOut': 'Hold Out',
+    'homepage.stop': 'Stop',
+    'homepage.areYouReady': 'Ready?',
+    'homepage.journey': 'Journey',
+    'homepage.notificationsEnabled': '🔔  Notifications ON',
+    'homepage.notificationsDisabled': '🔕 Turn on Notifications',
+
+    'stats.yourEnergy': 'Your Energy',
+    'stats.today': 'Today',
+    'stats.total': 'Total',
+    'stats.recentPractices': 'Recent Practices',
+    'stats.noHistory': 'No history yet',
+    'stats.close': 'Close',
+
+    'aipanel.etherIntellect': 'Ether Intellect',
+    'aipanel.close': 'Close',
+    'aipanel.placeholder': 'Describe your state in a few words...',
+    'aipanel.recommending': 'Recommending practice...',
+    'aipanel.loading': 'Reading your state...',
+    'aipanel.acceptPractice': 'Accept Practice',
+    'aipanel.mindStream': 'Mind stream',
+
+
+    'paywall.description': 'Practice <b>{{name}}</b> requires a subscription or one-time payment.',
+    'paywall.payment': 'Secure payment via Telegram',
+    
+    "paywall.title": "Choose access",
+    'paywall.premium': 'Premium Access',
+    "paywall.tab_single": "One practice",
+    "paywall.tab_all": "Entire catalog",
+    "paywall.benefit": "Benefit",
+    "paywall.single_desc": "Full access to the technique <b>{{name}}</b>, statistics and settings.",
+    "paywall.all_desc": "All 10+ techniques, future updates and personal plans.",
+    "paywall.all_access_title": "All Access Pass",
+    "paywall.price_per_month": "99 ₽ <span>/ month</span>",
+    "paywall.price_forever": "499 ₽ <span>/ forever</span>",
+    "paywall.btn_single": "Unlock one",
+    "paywall.btn_all": "Get everything at once",
+    "paywall.leave_free": "Leave free",
+    "paywall.payment_note": "Secure payment via Telegram"
+  },
+
+  ru: {
+    appName: 'Ether AI',
+    appFullName: 'ETHER AI: Дыхание и изобилие',
+
+    'homepage.inhale': 'Вдох',
+    'homepage.exhale': 'Выдох',
+    'homepage.holdIn': 'Держи',
+    'homepage.holdOut': 'Держи',
+    'homepage.stop': 'Стоп',
+    'homepage.areYouReady': 'Готовы?',
+    'homepage.journey': 'Путешествие',
+    'homepage.notificationsEnabled': '🔔 Напоминания ВКЛ',
+    'homepage.notificationsDisabled': '🔕 Включить напоминания',
+
+    'stats.yourEnergy': 'Ваша энергия',
+    'stats.today': 'Сегодня',
+    'stats.total': 'Всего',
+    'stats.recentPractices': 'Последние практики',
+    'stats.noHistory': 'Истории пока нет',
+    'stats.close': 'Закрыть',
+
+    'aipanel.etherIntellect': 'Интеллект Эфира',
+    'aipanel.close': 'Закрыть',
+    'aipanel.placeholder': 'Опишите состояние в нескольких словах...',
+    'aipanel.recommending': 'Подбираю практику...',
+    'aipanel.loading': 'Считываю состояние...',
+    'aipanel.acceptPractice': 'Принять практику',
+    'aipanel.mindStream': 'Поток разума',
+
+    'paywall.description': 'Техника <b>{{name}}</b> требует подписки или разовой оплаты.',
+    'paywall.payment': 'Безопасная оплата через Telegram',
+
+    "paywall.title": "Выберите доступ",
+    "paywall.premium": "Premium Доступ",
+    "paywall.tab_single": "Одна практика",
+    "paywall.tab_all": "Весь каталог",
+    "paywall.benefit": "Выгода",
+    "paywall.single_desc": "Полный доступ к технике <b>{{name}}</b>, статистике и настройкам.",
+    "paywall.all_desc": "Все 10+ техник, будущие обновления и персональные планы.",
+    "paywall.all_access_title": "All Access Pass",
+    "paywall.price_per_month": "99 ₽ <span>/ месяц</span>",
+    "paywall.price_forever": "499 ₽ <span>/ навсегда</span>",
+    "paywall.btn_single": "Разблокировать одну",
+    "paywall.btn_all": "Забрать всё сразу",
+    "paywall.leave_free": "Оставить бесплатные",
+    "paywall.payment_note": "Безопасная оплата через Telegram"
+  }
+};
