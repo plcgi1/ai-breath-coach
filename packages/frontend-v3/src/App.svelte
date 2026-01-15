@@ -8,6 +8,7 @@
   import AIPanel from './components/AIPanel.svelte';
   import Paywall from './components/Paywall.svelte';
   import Stats from './components/Stats.svelte';
+  import PracticeScroll from './components/PracticeScroll.svelte';
   import ShareButton from './components/ShareButton.svelte';
   import { i18n, t } from './lib/i18n';
   import { initTelegram } from './lib/telegram.js';
@@ -191,12 +192,27 @@
     }
   }
 
-  $: scale =
-    $session.phase === i18n('homepage.inhale')
-      ? 1.25
-      : $session.phase === i18n('homepage.exhale')
-        ? 1.0
-        : 1.15;
+  $: scale = (() => {
+    let scale = 1.0;
+    switch ($session.phase) {
+      case i18n('homepage.inhale'):
+        scale = 1.25;
+        break;
+      case i18n('homepage.holdIn'):
+        scale = 1.25;
+        break;
+      case i18n('homepage.exhale'):
+        scale = 1.0;
+        break;
+      case i18n('homepage.holdOut'):
+        scale = 1.0;
+        break;
+      default:
+        scale = 1.0;
+    }
+    console.info('scale', scale);
+    return scale;
+  })();
 </script>
 
 <main class="nebula">
@@ -241,29 +257,12 @@
     </section>
 
     <footer>
-      <div class="scroll-wrapper">
-        <div class="slots-scroll">
-          {#each data.techniques as tech}
-            {@const isFree = data.techniques.indexOf(tech) < 3}
-            {@const isPurchased = data.user.purchased.includes(tech.slug)}
-            {@const isLocked = !isFree && !isPurchased}
-            <button
-              class="slot {$selectedTech.slug === tech.slug ? 'active' : ''} {isLocked
-                ? 'locked'
-                : ''}"
-              on:click={() => handleSelect(tech)}
-            >
-              <span class="icon">{tech.icon}</span>
-
-              {#if isLocked}
-                <div class="lock-overlay">
-                  <span class="lock-icon">🔒</span>
-                </div>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
+      <PracticeScroll
+        techniques={data.techniques}
+        selectedSlug={$selectedTech.slug}
+        purchasedSlugs={data.user.purchased}
+        onSelect={handleSelect}
+      />
     </footer>
   {/if}
 

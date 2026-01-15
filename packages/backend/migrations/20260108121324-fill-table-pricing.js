@@ -4,6 +4,13 @@ import { QueryInterface, DataTypes } from "sequelize";
 /** @type {import('sequelize-cli').Migration} */
 
 export const up = async ({ context: queryInterface }) => {
+  const prices = [
+    {
+      policyId: '11000000-0000-0000-0000-000000000001',
+    }
+  ]
+    {
+      id: '10000000-0000-0000-0000-000000000001',
   await queryInterface.sequelize.query(`
 INSERT INTO "pricing" ("id", "policyId", "period", "name", "price", "currency", "createdAt")
 VALUES 

@@ -49,7 +49,7 @@ export const api = {
         },
         ...breathingPractices
       ],
-      user: { 
+      user: {
         purchased
       }
     };
