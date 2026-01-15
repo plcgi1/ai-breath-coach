@@ -1,4 +1,5 @@
-import {CONFIG} from '../config.js';
+import { CONFIG } from '../config.js';
+import { breathingPractices } from './practices.js';
 
 console.info('API URL:', CONFIG.apiUrl);
 
@@ -46,22 +47,11 @@ export const api = {
           is_free: false,
           settings: [{ inhale: 8, holdIn: 8, exhale: 8, holdOut: 8, rounds: 4 }]
         },
-        {
-          slug: 'zen1',
-          name: 'Дзен',
-          icon: '🧘',
-          is_free: false,
-          settings: [{ inhale: 8, holdIn: 8, exhale: 8, holdOut: 8, rounds: 4 }]
-        },
-        {
-          slug: 'zen3',
-          name: 'Дзен',
-          icon: '🧘',
-          is_free: false,
-          settings: [{ inhale: 8, holdIn: 8, exhale: 8, holdOut: 8, rounds: 4 }]
-        }
+        ...breathingPractices
       ],
-      user: { purchased_slugs: purchased }
+      user: { 
+        purchased
+      }
     };
   },
 
@@ -102,7 +92,7 @@ export const api = {
 
 // async function fetchAPI(endpoint, options = {}) {
 //     const $user = get(user);
-    
+
 //     try {
 //         const response = await fetch(`${API_URL}${endpoint}`, {
 //             ...options,
@@ -111,7 +101,7 @@ export const api = {
 //                  Authorization: `twa ${initUserAuthData}`,
 //              }
 //         });
-        
+
 //         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 //         return await response.json();
 //     } catch (error) {
@@ -123,7 +113,7 @@ export const api = {
 //         const response = await fetchAPI(`/breathing/base-techniques`);
 
 //         if (!response) throw new Error('Network error');
-                
+
 //         return response;
 //     },
 
@@ -132,50 +122,48 @@ export const api = {
 //             method: 'POST',
 //             body: JSON.stringify({ query })
 //         });
-        
+
 //         // Fallback
 //         if (!result) {
 //             return this.fallbackAI(query);
 //         }
-        
+
 //         return result;
 //     },
-    
+
 //     async createInvoice(userId, productId) {
 //         return await fetchAPI('/payments/create-invoice', {
 //             method: 'POST',
 //             body: JSON.stringify({ user_id: userId, product_id: productId })
 //         });
 //     },
-    
+
 //     fallbackAI(query) {
 //         const q = query.toLowerCase();
-        
+
 //         if (q.includes('сон') || q.includes('уснуть')) {
 //             return {
 //                 description: '🌙 Техника 4-7-8 замедлит пульс и поможет заснуть за 5-10 минут.',
 //                 technique: { rounds: 6, settings: { inhale: 4, holdIn: 7, exhale: 8, holdOut: 0 } }
 //             };
 //         }
-        
+
 //         if (q.includes('паник') || q.includes('тревог') || q.includes('сердце')) {
 //             return {
 //                 description: '🆘 Длинный выдох активирует парасимпатику. Фокус на выдохе!',
 //                 technique: { rounds: 10, settings: { inhale: 2, holdIn: 0, exhale: 8, holdOut: 2 } }
 //             };
 //         }
-        
+
 //         if (q.includes('энерг') || q.includes('устал') || q.includes('засыпаю')) {
 //             return {
 //                 description: '⚡ Быстрое дыхание насытит кровь кислородом и взбодрит.',
 //                 technique: { rounds: 20, settings: { inhale: 1, holdIn: 0, exhale: 1, holdOut: 0 } }
 //             };
 //         }
-        
+
 //         return {
 //             description: '😌 Квадратное дыхание — универсальная техника для баланса.',
 //             technique: { rounds: 6, settings: { inhale: 4, holdIn: 4, exhale: 4, holdOut: 4 } }
 //         };
 //     }
-
-

@@ -2,7 +2,7 @@ import { get, derived, writable } from 'svelte/store';
 import translations from './i18n/translations';
 import { tgUser } from './telegram.js';
 
-const langCode = tgUser?.language_code || 'en';
+const langCode = tgUser?.language_code || 'ru';
 
 export const locale = writable(langCode);
 export const locales = Object.keys(translations);

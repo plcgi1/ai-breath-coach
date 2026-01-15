@@ -3,7 +3,7 @@
   import { fade, fly } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { selectedTech } from '../lib/store/session';
-  import { t, } from "../lib/i18n";
+  import { t } from '../lib/i18n';
 
   let showAIModal = false;
   let userMood = '';
@@ -35,7 +35,7 @@
 
   function applyAIRecommendation() {
     const tech = techniques.find((t) => t.slug === aiRecommendation.slug);
-    
+
     if (tech) {
       $selectedTech = tech;
       showAIModal = false;
@@ -57,12 +57,13 @@
     >
       <div class="ai-header">
         <span class="ai-spark">✨</span>
-        <h2>{@html $t("aipanel.etherIntellect")}</h2>
+        <h2>{@html $t('aipanel.etherIntellect')}</h2>
       </div>
-      <button 
-        class="close-x" 
-        on:click={() => (showAIModal = false)} 
-        aria-label={$t("aipanel.close")}>
+      <button
+        class="close-x"
+        on:click={() => (showAIModal = false)}
+        aria-label={$t('aipanel.close')}
+      >
         <svg
           width="24"
           height="24"
@@ -82,7 +83,7 @@
         <div class="input-wrapper">
           <textarea
             bind:value={userMood}
-            placeholder={$t("aipanel.placeholder")}
+            placeholder={$t('aipanel.placeholder')}
             class="ai-input"
             rows="1"
             maxlength={MAX_CHARS}
@@ -93,20 +94,26 @@
           </div>
         </div>
         <button class="main-btn ai-btn" on:click={askAI} disabled={isAILoading || !userMood}>
-          {isAILoading ? $t("aipanel.loading") : $t("aipanel.recommending")}
+          {isAILoading ? $t('aipanel.loading') : $t('aipanel.recommending')}
         </button>
       {:else}
         <div class="ai-result" in:fade>
           <p>{aiRecommendation.message}</p>
-          <button class="main-btn" on:click={applyAIRecommendation}> {@html $t("aipanel.acceptPractice")} </button>
+          <button class="main-btn" on:click={applyAIRecommendation}>
+            {@html $t('aipanel.acceptPractice')}
+          </button>
         </div>
       {/if}
 
-      <button class="close-lite" on:click={() => (showAIModal = false)}>{@html $t("aipanel.close")}</button>
+      <button class="close-lite" on:click={() => (showAIModal = false)}
+        >{@html $t('aipanel.close')}</button
+      >
     </div>
   </div>
 {:else}
-  <button on:click={() => (showAIModal = true)} style="cursor: pointer">{@html $t("aipanel.mindStream")}</button>
+  <button on:click={() => (showAIModal = true)} style="cursor: pointer">
+    {@html $t('aipanel.mindStream')}
+  </button>
 {/if}
 
 <style>
@@ -115,16 +122,10 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 10px;
   }
   .ai-spark {
     font-size: 1.5rem;
     filter: drop-shadow(0 0 10px #fbbf24);
-  }
-  .ai-desc {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    margin-bottom: 20px;
   }
 
   .ai-input {

@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { i18n } from "../i18n";
+import { i18n } from '../i18n';
 
 export const selectedTech = writable(null);
 
