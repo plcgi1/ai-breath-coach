@@ -37,7 +37,7 @@ export class BreathingService {
     return techniques;
   }
 
-  async getBaseTechniques(): Promise<Technique[]> {
+  async getTechniques(): Promise<Technique[]> {
     const techniques = await this.techniqueModel.findAll({
       order: ["sortBy"],
     });

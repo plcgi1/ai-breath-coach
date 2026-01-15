@@ -12,9 +12,9 @@ participant "Svelte Frontend" as App
 participant "Backend API" as API
 database "PostgreSQL" as DB
 
-== 1. Инициализация (Получение Layout) ==
+== 1. Инициализация (Первое открытие) ==
 
-User -> App: Открывает приложение
+User -> App: Открывает приложение (TWA)
 App -> API: GET /api/user/layout
 note right of API: Определение прав и структуры 3-х слотов
 

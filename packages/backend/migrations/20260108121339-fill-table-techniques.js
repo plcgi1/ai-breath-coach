@@ -1,201 +1,371 @@
-'use strict'
+"use strict";
 import { QueryInterface, DataTypes } from "sequelize";
 
 /** @type {import('sequelize-cli').Migration} */
 
-module.exports = {
-  async up({ context: queryInterface }) {
-    const priceFreeId = '10000000-0000-0000-0000-000000000001'
-    const pricePId = ''
-
-    const breathingPractices = [
-      {
-        slug: 'box-breathing',
-        name: 'Квадрат',
-        icon: '📦',
-        orderBy: 1,
-        description: 'Метод Navy SEALs (спецназа США). Применяется для мгновенной фокусировки и успокоения нервной системы в стрессовых ситуациях через балансировку симпатической и парасимпатической систем.',
-        status: 'free',
-        settings: [
-          { inhale: 4, holdIn: 4, exhale: 4, holdOut: 4, rounds: 15 }
-        ],
-        tags: [
-          'focus', 
-          'mental stability', 
-          'composure', 
-          'control', 
-          'situational awareness'
-        ],
-        symptoms: [
-          'mind racing', 
-          'panic', 
-          'shaking hands', 
-          'overwhelmed', 
-          'chaotic thoughts', 
-          'pounding heart', 
-          'exam stress', 
-          'high pressure'
-        ]
-      },
-      {
-        slug: '478-relax',
-        name: 'Глубокий сон',
-        icon: '🌙',
-        orderBy: 2,
-        description: 'Разработана доктором Эндрю Вейлом (Гарвард). Это естественный транквилизатор для нервной системы. Взята из практики пранаямы для борьбы с бессонницей и чувством тревоги.',
-        status: 'free',
-        settings: [
-          { inhale: 4, holdIn: 7, exhale: 8, holdOut: 0, rounds: 5 }
-        ],
-        tags: [
-          'sleep quality', 
-          'sedation', 
-          'deep relaxation', 
-          'nervous system reset', 
-          'peace of mind'
-        ],
-        symptoms: [
-          'can not sleep', 
-          'tossing and turning', 
-          'night anxiety', 
-          'wide awake at night', 
-          'restless legs', 
-          'bedtime overthinking'
-        ]
-      },
-      {
-        slug: 'buteyko-calm',
-        name: 'Метод Бутейко',
-        icon: '🧘',
-        orderBy: 3,
-        description: 'Разработана советским врачом К.П. Бутейко. Учит организм эффективно использовать углекислый газ, устраняет гипервентиляцию и помогает при заложенности носа и астме.',
-        status: 'free',
-        settings: [{ inhale: 2, holdIn: 0, exhale: 3, holdOut: 5, rounds: 30 }],
-        tags: ['breath control', 'nasal breathing', 'CO2 tolerance', 'efficient oxygen', 'lung health'],
-        symptoms: ['short of breath', 'mouth breathing', 'snoring', 'blocked nose', 'heaving breathing', 'wheezing', 'air hunger']
-      },
-      {
-        slug: 'lion',
-        name: 'Сила Льва',
-        icon: '🦁',
-        orderBy: 4,
-        description: 'Техника "Симхасана" из Хатха-йоги. Используется для снятия напряжения в лицевых мышцах, горле и груди, а также для стимуляции миндалевидного тела, что помогает снизить агрессию и страх.',
-        status: 'premium',
-        settings: [
-          { inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 30 }
-        ],
-        tags: ['self-confidence', 'vocal power', 'facial relaxation', 'emotional release', 'assertiveness'],
-        symptoms: ['feeling weak', 'throat lump', 'suppressed anger', 'scared to speak', 'jaw pain', 'shivering voice', 'social fear']
-      },
-      {
-        slug: 'kapalbhati',
-        name: 'Сияющий череп',
-        icon: '⚡',
-        orderBy: 5,
-        description: 'Очищающая техника (шаткарма) из йоги. Короткие, мощные выдохи тонизируют органы брюшной полости, очищают носовые пазухи и насыщают мозг кислородом для ясности мыслей.',
-        status: 'premium',
-        settings: [
-          { inhale: 1, holdIn: 0, exhale: 1, holdOut: 0, rounds: 30 }
-        ],
-        tags: ['brain boost', 'detox', 'energy spike', 'mental clarity', 'digestive fire'],
-        symptoms: ['brain fog', 'feeling lazy', 'stuffy nose', 'morning fatigue', 'mental clouds', 'slow thinking', 'drowsy']
-      },
-      {
-        slug: 'coherent',
-        name: 'Резонанс',
-        icon: '🌊',
-        orderBy: 6,
-        description: 'Научно обоснованный метод когерентного дыхания. Выравнивает сердечный ритм (HRV), вводя организм в состояние максимальной биологической эффективности и спокойствия.',
-        status: 'premium',
-        settings: [
-          { inhale: 6, holdIn: 0, exhale: 6, holdOut: 0, rounds: 15 }
-        ],
-        tags: ['emotional balance', 'heart health', 'inner harmony', 'resilience', 'stable mood'],
-        symptoms: ['feeling irritated', 'mood swings', 'heart skipping beats', 'nervous', 'mild tension', 'emotionally drained']
-      },
-      {
-        slug: 'emotional-release',
-        name: 'Эмоциональный сброс',
-        icon: '🌋',
-        orderBy: 7,
-        description: 'Психосоматическая техника для работы с подавленным гневом. Сначала мы "раскачиваем" энергию быстрым темпом, а затем резко замедляемся для заземления и осознания.',
-        status: 'premium',
-        settings: [
-          { inhale: 1, holdIn: 0, exhale: 1, holdOut: 0, rounds: 20 }, // Фаза 1: Интенсивный выплеск
-          { inhale: 4, holdIn: 4, exhale: 8, holdOut: 0, rounds: 5 }   // Фаза 2: Глубокое успокоение
-        ],
-        tags: ['catharsis', 'anger management', 'somatic release', 'emotional detox', 'tension relief'],
-        symptoms: ['feeling like exploding', 'internal pressure', 'repressed rage', 'muscle tightness', 'frustration', 'stuck emotions']
-      },
-      {
-        slug: 'ladder-to-calm',
-        name: 'Лестница спокойствия',
-        icon: '🪜',
-        orderBy: 8,
-        description: 'КПТ-техника для мягкого вывода из состояния высокой тревоги. Мы постепенно удлиняем выдох с каждым новым этапом, "обманывая" мозг и замедляя пульс без стресса.',
-        status: 'premium',
-        settings: [
-          { inhale: 3, holdIn: 0, exhale: 3, holdOut: 0, rounds: 4 }, // Уровень 1: Равный ритм
-          { inhale: 3, holdIn: 0, exhale: 5, holdOut: 0, rounds: 4 }, // Уровень 2: Удлинение
-          { inhale: 3, holdIn: 0, exhale: 7, holdOut: 0, rounds: 4 }  // Уровень 3: Глубокий транс
-        ],
-        tags: ['anxiety reduction', 'gradual relaxation', 'pacing', 'nervous system training', 'soft landing'],
-        symptoms: ['high pulse', 'restlessness', 'nervous tension', 'can not settle down', 'jitters', 'worrying']
-      },
-      {
-        slug: 'focus-shifter',
-        name: 'Переключатель',
-        icon: '🔄',
-        orderBy: 9,
-        description: 'Техника для борьбы с "зацикленным" мышлением. Резкая смена ритмов заставляет мозг переключиться с внутренних диалогов на контроль дыхания.',
-        status: 'premium',
-        settings: [
-          { inhale: 1, holdIn: 2, exhale: 1, holdOut: 2, rounds: 10 }, // Быстрые "задержки" для концентрации
-          { inhale: 5, holdIn: 0, exhale: 5, holdOut: 0, rounds: 5 }   // Плавный баланс
-        ],
-        tags: ['breaking loops', 'mental shift', 'adhd friendly', 'cognitive control', 'refocus'],
-        symptoms: ['obsessive thoughts', 'looping mind', 'distraction', 'overthinking', 'stuck in the head', 'mental fatigue']
-      },
-      {
-        slug: 'wim-hof-lite',
-        name: 'Дух льда',
-        icon: '❄️',
-        orderBy: 10,
-        description: 'Адаптированный метод Вима Хофа. Контролируемая гипервентиляция для повышения выносливости, укрепления иммунитета и выработки адреналина естественным путем.',
-        status: 'premium',
-        settings: [
-          { inhale: 2, holdIn: 0, exhale: 1, holdOut: 15, rounds: 9 }
-        ],
-        tags: ['immune boost', 'willpower', 'vitality', 'metabolic power', 'cold endurance'],
-        symptoms: ['always cold', 'feeling weak', 'low motivation', 'burnout', 'sluggish', 'winter blues', 'stiff body']
-      },
-      {
-        slug: 'bellows',
-        name: 'Кузнечные мехи',
-        icon: '🔥',
-        orderBy: 11,
-        description: 'Техника "Бхастрика". Мощное энергизирующее дыхание, которое раздувает "внутренний огонь", ускоряет метаболизм и помогает быстро согреться или проснуться без кофеина.',
-        status: 'premium',
-        settings: [
-          { inhale: 2, holdIn: 0, exhale: 2, holdOut: 0, rounds: 20 }
-        ],
-        tags: ['fire energy', 'caffeine alternative', 'inner heat', 'oxygen blast', 'power'],
-        symptoms: ['low energy', 'cold hands', 'depressed mood', 'groggy', 'sleepy', 'slow metabolism', 'heavy body']
-      },
-      {
-        slug: 'anti-panic',
-        name: 'Стоп Паника',
-        icon: '🛡️',
-        orderBy: 12,
-        description: 'Клиническая техника когнитивно-поведенческой терапии. Удлиненный выдох сигнализирует мозгу, что опасности нет, быстро прерывая цикл панической атаки.',
-        status: 'premium',
-        settings: [
-          { inhale: 3, holdIn: 0, exhale: 6, holdOut: 0, rounds: 20 }
-        ],
-        tags: ['emergency calm', 'vagus nerve', 'grounding', 'instant relief', 'safety'],
-        symptoms: ['feeling scared', 'fear of dying', 'trembling', 'claustrophobia', 'acute distress', 'chest pain', 'choking', 'dizzy']
-      }
-    ];
-    
-  },
-}
+export const up = async ({ context: queryInterface }) => {
+  const breathingPractices = [
+    {
+      slug: "box-breathing",
+      name: "Квадрат",
+      icon: "📦",
+      sortBy: 1,
+      description:
+        "Метод Navy SEALs (спецназа США). Применяется для мгновенной фокусировки и успокоения нервной системы в стрессовых ситуациях через балансировку симпатической и парасимпатической систем.",
+      status: "free",
+      settings: JSON.stringify([
+        { inhale: 4, holdIn: 4, exhale: 4, holdOut: 4, rounds: 15 },
+      ]),
+      tags: [
+        "focus",
+        "mental stability",
+        "composure",
+        "control",
+        "situational awareness",
+      ],
+      symptoms: [
+        "mind racing",
+        "panic",
+        "shaking hands",
+        "overwhelmed",
+        "chaotic thoughts",
+        "pounding heart",
+        "exam stress",
+        "high pressure",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "478-relax",
+      name: "Глубокий сон",
+      icon: "🌙",
+      sortBy: 2,
+      description:
+        "Разработана доктором Эндрю Вейлом (Гарвард). Это естественный транквилизатор для нервной системы. Взята из практики пранаямы для борьбы с бессонницей и чувством тревоги.",
+      status: "free",
+      settings: JSON.stringify([
+        { inhale: 4, holdIn: 7, exhale: 8, holdOut: 0, rounds: 5 },
+      ]),
+      tags: [
+        "sleep quality",
+        "sedation",
+        "deep relaxation",
+        "nervous system reset",
+        "peace of mind",
+      ],
+      symptoms: [
+        "can not sleep",
+        "tossing and turning",
+        "night anxiety",
+        "wide awake at night",
+        "restless legs",
+        "bedtime overthinking",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "buteyko-calm",
+      name: "Метод Бутейко",
+      icon: "🧘",
+      sortBy: 3,
+      description:
+        "Разработана советским врачом К.П. Бутейко. Учит организм эффективно использовать углекислый газ, устраняет гипервентиляцию и помогает при заложенности носа и астме.",
+      status: "free",
+      settings: JSON.stringify([
+        { inhale: 2, holdIn: 0, exhale: 3, holdOut: 5, rounds: 30 },
+      ]),
+      tags: [
+        "breath control",
+        "nasal breathing",
+        "CO2 tolerance",
+        "efficient oxygen",
+        "lung health",
+      ],
+      symptoms: [
+        "short of breath",
+        "mouth breathing",
+        "snoring",
+        "blocked nose",
+        "heaving breathing",
+        "wheezing",
+        "air hunger",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "lion",
+      name: "Сила Льва",
+      icon: "🦁",
+      sortBy: 4,
+      description:
+        'Техника "Симхасана" из Хатха-йоги. Используется для снятия напряжения в лицевых мышцах, горле и груди, а также для стимуляции миндалевидного тела, что помогает снизить агрессию и страх.',
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 30 },
+      ]),
+      tags: [
+        "self-confidence",
+        "vocal power",
+        "facial relaxation",
+        "emotional release",
+        "assertiveness",
+      ],
+      symptoms: [
+        "feeling weak",
+        "throat lump",
+        "suppressed anger",
+        "scared to speak",
+        "jaw pain",
+        "shivering voice",
+        "social fear",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "kapalbhati",
+      name: "Сияющий череп",
+      icon: "⚡",
+      sortBy: 5,
+      description:
+        "Очищающая техника (шаткарма) из йоги. Короткие, мощные выдохи тонизируют органы брюшной полости, очищают носовые пазухи и насыщают мозг кислородом для ясности мыслей.",
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 1, holdIn: 0, exhale: 1, holdOut: 0, rounds: 30 },
+      ]),
+      tags: [
+        "brain boost",
+        "detox",
+        "energy spike",
+        "mental clarity",
+        "digestive fire",
+      ],
+      symptoms: [
+        "brain fog",
+        "feeling lazy",
+        "stuffy nose",
+        "morning fatigue",
+        "mental clouds",
+        "slow thinking",
+        "drowsy",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "coherent",
+      name: "Резонанс",
+      icon: "🌊",
+      sortBy: 6,
+      description:
+        "Научно обоснованный метод когерентного дыхания. Выравнивает сердечный ритм (HRV), вводя организм в состояние максимальной биологической эффективности и спокойствия.",
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 6, holdIn: 0, exhale: 6, holdOut: 0, rounds: 15 },
+      ]),
+      tags: [
+        "emotional balance",
+        "heart health",
+        "inner harmony",
+        "resilience",
+        "stable mood",
+      ],
+      symptoms: [
+        "feeling irritated",
+        "mood swings",
+        "heart skipping beats",
+        "nervous",
+        "mild tension",
+        "emotionally drained",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "emotional-release",
+      name: "Эмоциональный сброс",
+      icon: "🌋",
+      sortBy: 7,
+      description:
+        'Психосоматическая техника для работы с подавленным гневом. Сначала мы "раскачиваем" энергию быстрым темпом, а затем резко замедляемся для заземления и осознания.',
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 1, holdIn: 0, exhale: 1, holdOut: 0, rounds: 20 }, // Фаза 1: Интенсивный выплеск
+        { inhale: 4, holdIn: 4, exhale: 8, holdOut: 0, rounds: 5 }, // Фаза 2: Глубокое успокоение
+      ]),
+      tags: [
+        "catharsis",
+        "anger management",
+        "somatic release",
+        "emotional detox",
+        "tension relief",
+      ],
+      symptoms: [
+        "feeling like exploding",
+        "internal pressure",
+        "repressed rage",
+        "muscle tightness",
+        "frustration",
+        "stuck emotions",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "ladder-to-calm",
+      name: "Лестница спокойствия",
+      icon: "🪜",
+      sortBy: 8,
+      description:
+        'КПТ-техника для мягкого вывода из состояния высокой тревоги. Мы постепенно удлиняем выдох с каждым новым этапом, "обманывая" мозг и замедляя пульс без стресса.',
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 3, holdIn: 0, exhale: 3, holdOut: 0, rounds: 4 }, // Уровень 1: Равный ритм
+        { inhale: 3, holdIn: 0, exhale: 5, holdOut: 0, rounds: 4 }, // Уровень 2: Удлинение
+        { inhale: 3, holdIn: 0, exhale: 7, holdOut: 0, rounds: 4 }, // Уровень 3: Глубокий транс
+      ]),
+      tags: [
+        "anxiety reduction",
+        "gradual relaxation",
+        "pacing",
+        "nervous system training",
+        "soft landing",
+      ],
+      symptoms: [
+        "high pulse",
+        "restlessness",
+        "nervous tension",
+        "can not settle down",
+        "jitters",
+        "worrying",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "focus-shifter",
+      name: "Переключатель",
+      icon: "🔄",
+      sortBy: 9,
+      description:
+        'Техника для борьбы с "зацикленным" мышлением. Резкая смена ритмов заставляет мозг переключиться с внутренних диалогов на контроль дыхания.',
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 1, holdIn: 2, exhale: 1, holdOut: 2, rounds: 10 }, // Быстрые "задержки" для концентрации
+        { inhale: 5, holdIn: 0, exhale: 5, holdOut: 0, rounds: 5 }, // Плавный баланс
+      ]),
+      tags: [
+        "breaking loops",
+        "mental shift",
+        "adhd friendly",
+        "cognitive control",
+        "refocus",
+      ],
+      symptoms: [
+        "obsessive thoughts",
+        "looping mind",
+        "distraction",
+        "overthinking",
+        "stuck in the head",
+        "mental fatigue",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "wim-hof-lite",
+      name: "Дух льда",
+      icon: "❄️",
+      sortBy: 10,
+      description:
+        "Адаптированный метод Вима Хофа. Контролируемая гипервентиляция для повышения выносливости, укрепления иммунитета и выработки адреналина естественным путем.",
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 2, holdIn: 0, exhale: 1, holdOut: 15, rounds: 9 },
+      ]),
+      tags: [
+        "immune boost",
+        "willpower",
+        "vitality",
+        "metabolic power",
+        "cold endurance",
+      ],
+      symptoms: [
+        "always cold",
+        "feeling weak",
+        "low motivation",
+        "burnout",
+        "sluggish",
+        "winter blues",
+        "stiff body",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "bellows",
+      name: "Кузнечные мехи",
+      icon: "🔥",
+      sortBy: 11,
+      description:
+        'Техника "Бхастрика". Мощное энергизирующее дыхание, которое раздувает "внутренний огонь", ускоряет метаболизм и помогает быстро согреться или проснуться без кофеина.',
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 2, holdIn: 0, exhale: 2, holdOut: 0, rounds: 20 },
+      ]),
+      tags: [
+        "fire energy",
+        "caffeine alternative",
+        "inner heat",
+        "oxygen blast",
+        "power",
+      ],
+      symptoms: [
+        "low energy",
+        "cold hands",
+        "depressed mood",
+        "groggy",
+        "sleepy",
+        "slow metabolism",
+        "heavy body",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      slug: "anti-panic",
+      name: "Стоп Паника",
+      icon: "🛡️",
+      sortBy: 12,
+      description:
+        "Клиническая техника когнитивно-поведенческой терапии. Удлиненный выдох сигнализирует мозгу, что опасности нет, быстро прерывая цикл панической атаки.",
+      status: "premium",
+      settings: JSON.stringify([
+        { inhale: 3, holdIn: 0, exhale: 6, holdOut: 0, rounds: 20 },
+      ]),
+      tags: [
+        "emergency calm",
+        "vagus nerve",
+        "grounding",
+        "instant relief",
+        "safety",
+      ],
+      symptoms: [
+        "feeling scared",
+        "fear of dying",
+        "trembling",
+        "claustrophobia",
+        "acute distress",
+        "chest pain",
+        "choking",
+        "dizzy",
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+  await queryInterface.bulkInsert("technique", breathingPractices);
+};

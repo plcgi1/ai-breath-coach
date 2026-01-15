@@ -15,8 +15,16 @@
 
   // Цены для MVP
   const PRICE_SINGLE = 99;
-  const PRICE_AI = 499;
+  const PRICE_AI = 799;
 
+  function calcBenefit(singlePrice, aiPrice) {
+    const premiumPracticesCount = breathingPractices.length - 3;
+    const totalCostSeparately = premiumPracticesCount * singlePrice;
+    const savings = totalCostSeparately - aiPrice;
+    const savingsPercent = Math.round((savings / totalCostSeparately) * 100);
+    return { totalCostSeparately, savings, savingsPercent };
+  }
+    
   // Внутреннее состояние выбора в самом каталоге Paywall
   let localSelected = $selectedTech;
   let currentType = null; // Новый флаг для локального спиннера
@@ -70,6 +78,11 @@
 
   $: isOwned =
     purchasedSlugs.includes(localSelected.slug) || breathingPractices.indexOf(localSelected) < 3;
+
+  const { totalCostSeparately, savings, savingsPercent } = calcBenefit(
+    PRICE_SINGLE,
+    PRICE_AI
+  );
 </script>
 
 {#if show}
@@ -105,7 +118,7 @@
             <div class="price-tag small">✅</div>
             <button class="pay-btn secondary" on:click={close}> Использовать </button>
           {:else}
-            <p class="offer-desc">Только эта практика навсегда</p>
+            <p class="offer-desc">Доступ на 30 дней к выбранной технике</p>
             <div class="price-tag small">{PRICE_SINGLE} ⭐</div>
             <button
               class="pay-btn secondary"
@@ -137,22 +150,25 @@
           <p class="offer-desc">Все практики и ИИ-инструктор</p>
           <div class="price-tag small">{PRICE_AI} ⭐</div>
 
-          <button
-            class="pay-btn"
-            on:click={() => {
-              currentType = 'ai';
-              handlePayment('ai');
-            }}
-            disabled={isChecking}
-          >
-            {#if isChecking && currentType === 'ai'}
-              <div class="spinner"></div>
-            {:else}
-              Открыть всё
-            {/if}
-          </button>
+          <button 
+    class="pay-btn" 
+    on:click={() => { currentType = 'ai'; handlePayment('ai'); }}
+    disabled={isChecking}
+  >
+    {#if isChecking && currentType === 'ai'}
+      <div class="spinner"></div>
+    {:else}
+      Открыть доступ
+    {/if}
+  </button>
+  
+  <p class="save-amount">Экономия составит ~{savings} ⭐</p>
         </div>
       </div>
+      <div class="paywall-footer-info">
+  <p>Все тарифы действуют 30 дней с момента оплаты.</p>
+  <p>Подписка не продлевается автоматически. Вы сами решите, когда продлить доступ.</p>
+</div>
 
       <button class="close-txt" on:click={close}>{$t('paywall.leave_free')}</button>
     </div>
@@ -339,4 +355,24 @@
   .paywall-catalog-container {
     margin: 10px -24px; /* Чтобы скролл уходил в края модалки */
   }
+
+  .paywall-footer-info {
+    margin-top: 20px;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  .paywall-footer-info p {
+    font-size: 0.6rem;
+    color: #a9b7cc; /* Ненавязчивый серый цвет */
+    line-height: 1.4;
+    margin: 2px 0;
+  }
+
+  /* Пульсация всей карточки при проверке */
+  .checking-pulse {
+    animation: pulse 1.5s infinite ease-in-out;
+    border-color: #fbbf24 !important;
+  }
+
 </style>

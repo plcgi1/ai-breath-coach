@@ -18,9 +18,9 @@ export class BreathingController {
   constructor(private readonly breathingService: BreathingService) {}
 
   @UseGuards(TelegramAuthGuard, PaymentGuard)
-  @Get("base-techniques")
-  async getBaseTechniques() {
-    const techniques = await this.breathingService.getBaseTechniques();
+  @Get("techniques")
+  async getTechniques() {
+    const techniques = await this.breathingService.getTechniques();
     return techniques;
   }
 

@@ -1,7 +1,26 @@
 import { CONFIG } from '../config.js';
 import { breathingPractices } from './practices.js';
+import { initUserAuthData } from './telegram.js';
 
 console.info('API URL:', CONFIG.apiUrl);
+
+async function fetchAPI(endpoint, options = {}) {
+  try {
+  const response = await fetch(`${CONFIG.apiUrl}${endpoint}`, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                 Authorization: `twa ${initUserAuthData}`,
+             }
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.warn('API Error:', error);
+        return null;
+    }
+}
 
 export const api = {
   async askAI(query) {
@@ -19,36 +38,17 @@ export const api = {
     });
   },
 
+  async getTechniques() {
+    const response = await fetchAPI(`/breathing/techniques`);
+    if (!response) throw new Error('Network error');
+    return response;
+  },
+
   async getData() {
     const purchased = JSON.parse(localStorage.getItem('nebula_purchases') || '[]');
+    const techniques = await this.getTechniques();
     return {
-      techniques: [
-        {
-          slug: 'calm',
-          name: 'Спокойствие',
-          icon: '🌊',
-          is_free: true,
-          settings: [
-            { inhale: 2, holdIn: 2, exhale: 2, holdOut: 2, rounds: 2 },
-            { inhale: 3, holdIn: 3, exhale: 3, holdOut: 3, rounds: 2 }
-          ]
-        },
-        {
-          slug: 'lion',
-          name: 'Сила Льва',
-          icon: '🦁',
-          is_free: false,
-          settings: [{ inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 8 }]
-        },
-        {
-          slug: 'zen',
-          name: 'Дзен',
-          icon: '🧘',
-          is_free: false,
-          settings: [{ inhale: 8, holdIn: 8, exhale: 8, holdOut: 8, rounds: 4 }]
-        },
-        ...breathingPractices
-      ],
+      techniques,
       user: {
         purchased
       }

@@ -11,14 +11,6 @@ export const up = async ({ context: queryInterface }) => {
       primaryKey: true,
       allowNull: false,
     },
-    policyId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: "policy",
-        key: "id",
-      },
-    },
     price: {
       type: DataTypes.BIGINT,
       allowNull: false,

@@ -1,63 +1,27 @@
 "use strict";
-import { QueryInterface, DataTypes } from "sequelize";
 
 /** @type {import('sequelize-cli').Migration} */
 
 export const up = async ({ context: queryInterface }) => {
   const prices = [
     {
-      policyId: '11000000-0000-0000-0000-000000000001',
-    }
-  ]
+      id: "11111111-1111-1111-1111-111111111111",
+      price: 99,
+      period: 30,
+      name: "Single Month Plan",
+      currency: "XTR",
+      createdAt: new Date(),
+    },
     {
-      id: '10000000-0000-0000-0000-000000000001',
-  await queryInterface.sequelize.query(`
-INSERT INTO "pricing" ("id", "policyId", "period", "name", "price", "currency", "createdAt")
-VALUES 
-    -- Free (технически может существовать для описания условий)
-    (
-      '10000000-0000-0000-0000-000000000001', 
-      '11000000-0000-0000-0000-000000000001', 
-      365,
-      'free', 
-      0.000000000, 
-      'XTR', 
-      NOW()
-    ),
-
-    -- Zen Lite (Подписка на месяц, цена например 50 звезд)
-    (
-      '10000000-0000-0000-0000-000000000002', 
-      '11000000-0000-0000-0000-000000000100', 
-      30,
-      'zen-lite', 
-      50.000000000, 
-      'XTR', 
-      NOW()
-    ),
-
-    -- Inner Circle (Годовой, цена например 300 звезд)
-    (
-      '10000000-0000-0000-0000-000000000003', 
-      '11000000-0000-0000-0000-000000000100', 
-      365, 
-      'inner-circle', 
-      300.000000000, 
-      'XTR', 
-      NOW()
-    ),
-
-    -- Eternal Peace (Lifetime, цена например 1000 звезд)
-    (
-      '10000000-0000-0000-0000-000000000004', 
-      '11000000-0000-0000-0000-000000000100', 
-      1000, 
-      'eternal-peace', 
-      1000.000000000, 
-      'XTR', 
-      NOW()
-    );
-      `);
+      id: "22222222-2222-2222-2222-222222222222",
+      price: 1999,
+      period: 30,
+      name: "Premium Month Plan",
+      currency: "XTR",
+      createdAt: new Date(),
+    },
+  ];
+  await queryInterface.bulkInsert("pricing", prices);
 };
 
 export const down = async () => {

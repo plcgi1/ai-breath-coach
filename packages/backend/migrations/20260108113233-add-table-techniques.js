@@ -35,17 +35,13 @@ export const up = async ({ context: queryInterface }) => {
       type: DataTypes.JSONB,
       allowNull: false,
     },
-    audio: {
-      type: DataTypes.JSONB,
-      allowNull: false,
-    },
+
     icon: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     color: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     sortBy: {
       type: DataTypes.INTEGER,
