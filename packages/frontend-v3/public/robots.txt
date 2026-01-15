@@ -1,0 +1,14 @@
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+# Разрешаем индексировать главную и статику
+Allow: /
+Allow: /assets/
+Allow: /icons/
+
+# Запрещаем индексировать API и технические параметры
+Disallow: /api/
+Disallow: /status
+Disallow: /admin
+Disallow: /_next/
+Disallow: /build/
