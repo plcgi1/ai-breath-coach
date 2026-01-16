@@ -5,6 +5,7 @@
   import { api } from './lib/api';
   import { handleTouchStart, handleTouchMove, handleTouchEnd } from './lib/touch';
   import { session, selectedTech } from './lib/store/session';
+  import { techniques, sortedTechniques } from './lib/store/techniques'
   import AIPanel from './components/AIPanel.svelte';
   import Paywall from './components/Paywall.svelte';
   import Stats from './components/Stats.svelte';
@@ -33,11 +34,6 @@
         icon: '/icon-192.png'
       });
     }
-  }
-
-  function filterDataForPaywall(data) {
-    const result = data.filter((row) => row.status === 'locked');
-    return result;
   }
 
   function scheduleReminder() {
@@ -110,6 +106,9 @@
   onMount(async () => {
     initTelegram();
     data = await api.getData();
+    
+    $techniques = data.techniques
+
     stats = await api.getStats();
     $selectedTech = data.techniques[0];
     loading = false;
@@ -174,6 +173,7 @@
   async function handlePaymentSuccess(slug) {
     showPaywall = false;
     data = await api.getData();
+    $techniques = data.techniques
     launchConfetti();
   }
 
@@ -182,7 +182,6 @@
 
     const isPurchased = tech.status === 'unlocked';
 
-    console.info('handleSelect');
     if (isPurchased) {
       $selectedTech = tech;
       showPaywall = false;
@@ -243,7 +242,7 @@
 
           <div class="ai-trigger-container">
             <AIPanel
-              techniques={data.techniques}
+              techniques={$sortedTechniques}
               {handleTouchStart}
               {handleTouchMove}
               {handleTouchEnd}
@@ -257,7 +256,7 @@
 
     <footer>
       <PracticeScroll
-        techniques={data.techniques}
+        techniques={$sortedTechniques}
         selectedSlug={$selectedTech.slug}
         onSelect={handleSelect}
       />
@@ -275,7 +274,6 @@
       {handleTouchMove}
       {handleTouchEnd}
       onPaymentSuccess={handlePaymentSuccess}
-      data={filterDataForPaywall(data.techniques)}
     />
   {/if}
 

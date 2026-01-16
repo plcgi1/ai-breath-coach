@@ -3,12 +3,12 @@
   import { selectedTech } from '../lib/store/session';
   import { t } from '../lib/i18n';
   import PracticeScroll from './PracticeScroll.svelte';
+  import { lockedTechniques, unlockedTechniques } from '../lib/store/techniques';
   import { tg } from '../lib/telegram';
 
   export let show = false;
   export let purchasedSlugs = []; // Передаем список купленных из App.svelte
   export let onPaymentSuccess;
-  export let data = [];
 
   let isChecking = false;
   let pollingInterval;
@@ -19,8 +19,7 @@
   const PRICE_AI = 799;
 
   function calcBenefit(singlePrice, aiPrice) {
-    const premiumPracticesCount = data.length - 3;
-    const totalCostSeparately = premiumPracticesCount * singlePrice;
+    const totalCostSeparately = $unlockedTechniques.length * singlePrice;
     const savings = totalCostSeparately - aiPrice;
     const savingsPercent = Math.round((savings / totalCostSeparately) * 100);
     return { totalCostSeparately, savings, savingsPercent };
@@ -31,17 +30,15 @@
   let currentType = null; // Новый флаг для локального спиннера
 
   function paymentCallback(invoicePayload) {
+    // TODO для вызова после TG
     console.info('Payment callback received with payload:', invoicePayload);
     // Здесь можно обработать успешный платеж, если нужно
   }
 
   async function handlePayment(type) {
-    console.info('handlePayment called with type:', type);
-
     if (isChecking) return;
     currentType = type; // Запоминаем, какая кнопка нажата
     try {
-      console.info('Creating order for type:', localSelected);
       const { invoiceUrl, orderId } = await api.createOrder(type, localSelected.id);
 
       // Открываем платежную ссылку (если API её возвращает)
@@ -86,9 +83,7 @@
     }, 400);
   }
 
-  $: isOwned = purchasedSlugs.includes(localSelected.slug);
-
-  const { totalCostSeparately, savings, savingsPercent } = calcBenefit(PRICE_SINGLE, PRICE_AI);
+  const { savings } = calcBenefit(PRICE_SINGLE, PRICE_AI);
 </script>
 
 {#if show}
@@ -101,7 +96,7 @@
 
       <div class="paywall-catalog-container">
         <PracticeScroll
-          techniques={data}
+          techniques={$lockedTechniques}
           selectedSlug={localSelected.slug}
           {purchasedSlugs}
           onSelect={(tech) => (localSelected = tech)}
@@ -109,22 +104,14 @@
       </div>
       <div class="offers-container">
         <div
-          class="offer-card single {isOwned ? 'owned-style' : ''} {isChecking &&
-          currentType === 'single'
-            ? 'checking-pulse'
-            : ''}"
+          class="offer-card single {isChecking && currentType === 'single' ? 'checking-pulse' : ''}"
         >
           <div class="offer-header">
             <span class="offer-icon">{localSelected.icon}</span>
             <h3>{localSelected.name}</h3>
           </div>
 
-          {#if isOwned}
-            <p class="offer-desc" style="color: #10b981;">Доступно в вашей коллекции</p>
-            <div class="price-tag small">✅</div>
-            <button class="pay-btn secondary" on:click={close}> Использовать </button>
-          {:else}
-            <p class="offer-desc">Доступ на 30 дней к выбранной технике</p>
+          <p class="offer-desc">Доступ на 30 дней к выбранной технике</p>
             <div class="price-tag small">{PRICE_SINGLE} ⭐</div>
             <button
               class="pay-btn secondary"
@@ -140,7 +127,6 @@
                 Выбрать
               {/if}
             </button>
-          {/if}
         </div>
 
         <div
@@ -314,12 +300,6 @@
     white-space: nowrap;
   }
 
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   .spinner {
     width: 18px;
     height: 18px;
@@ -339,6 +319,12 @@
     animation: pulse 1.5s infinite;
   }
 
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   @keyframes pulse {
     0% {
       opacity: 1;
@@ -350,17 +336,7 @@
       opacity: 1;
     }
   }
-  .offer-card.owned-style {
-    border-color: rgba(16, 185, 129, 0.3); /* Зеленоватый оттенок успеха */
-    background: rgba(16, 185, 129, 0.05);
-  }
-
-  /* Если техника куплена, кнопка "Использовать" должна быть акцентной */
-  .offer-card.owned-style .pay-btn.secondary {
-    background: #10b981;
-    color: white;
-    opacity: 1;
-  }
+  
   .paywall-catalog-container {
     margin: 10px -24px; /* Чтобы скролл уходил в края модалки */
   }
