@@ -2,11 +2,14 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   UseGuards,
   Req,
   HttpCode,
   HttpStatus,
+  BadRequestException,
+  Query,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -19,12 +22,19 @@ import { CreateInvoiceDto } from "./dto/create-invoice.dto";
 import { TelegramAuthGuard } from "../../common/guards/telegram-auth.guard";
 import axios from "axios";
 import { ConfigService } from "@nestjs/config";
+import { BreathingService } from "../breathing/breathing.service";
+import { EOrderType } from "../../database/models/user-subscriptions.model";
+import { ETechniqueType } from "src/database/models/technique.model";
+import { GetUser } from "src/common/decorators/user.decorator";
+import { WebhookDto } from "./dto/webhook.dto";
+import { TelegramWebhookGuard } from "src/common/guards/telegram-webhook.guard";
 
 @ApiTags("Payments")
 @Controller("payments")
 export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
+    private readonly breathingService: BreathingService,
     private configService: ConfigService,
   ) {}
 
@@ -32,39 +42,50 @@ export class PaymentController {
   @ApiBearerAuth()
   @UseGuards(TelegramAuthGuard)
   @Post("invoice")
-  async createInvoice(@Body() dto: CreateInvoiceDto, @Req() req: any) {
-    // В req.user должен быть id из БД после lazyReg в Guard
-    return await this.paymentService.createInvoiceLink(
-      dto.pricingId,
-      req.user.dbId,
-    );
+  async createInvoice(
+    @Body() dto: CreateInvoiceDto,
+    @GetUser("id") userId: string,
+  ) {
+    if (dto.order == EOrderType.single && !dto.techId) {
+      throw new BadRequestException("techId is required for single order");
+    }
+    let technique;
+    if (dto.order == EOrderType.single && dto.techId) {
+      technique = await this.breathingService.getTechniqueById(dto.techId);
+    }
+    if (dto.order == EOrderType.single && !technique) {
+      throw new BadRequestException("Technique not found");
+    }
+    if (technique && technique.type === ETechniqueType.free) {
+      throw new BadRequestException("Technique is free");
+    }
+    const result = await this.paymentService.createInvoiceLink(dto, userId);
+    return result;
   }
 
+  /*
+   * Telegram отправляет сюда все обновления включая платежи.
+   * Настройка: https://api.telegram.org/bot<TOKEN>/setWebhook?url=<YOUR_URL>/webhook/telegram&secret_token=<SECRET>
+   * */
   @ApiOperation({ summary: "Webhook для Telegram (обработка платежей)" })
   @Post("webhook")
+  @UseGuards(TelegramWebhookGuard)
   @HttpCode(HttpStatus.OK)
-  async webhook(@Body() update: any) {
-    const token = this.configService.get<string>("TELEGRAM_BOT_TOKEN");
-
-    // 1. Подтверждение готовности к платежу
-    if (update.pre_checkout_query) {
-      await axios.post(
-        `https://api.telegram.org/bot${token}/answerPreCheckoutQuery`,
-        {
-          pre_checkout_query_id: update.pre_checkout_query.id,
-          ok: true,
-        },
-      );
-      return { ok: true };
-    }
-
-    // 2. Обработка успешного платежа
-    const success = update.message?.successful_payment;
-    if (success) {
-      const payload = JSON.parse(success.invoice_payload);
-      await this.paymentService.handleSuccessfulPayment(payload);
-    }
+  async webhook(@Body() update: WebhookDto, @GetUser("id") userId: string) {
+    await this.paymentService.webhookHandler(update, userId);
 
     return { ok: true };
+  }
+
+  @ApiOperation({ summary: "Проверка статуса платежа" })
+  @Get("check-order")
+  @UseGuards(TelegramAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getWebhookOrder(@Query() query, @GetUser("id") userId: string) {
+    const result = await this.paymentService.getWebhookOrder(
+      query.orderId,
+      userId,
+    );
+    return result;
   }
 }

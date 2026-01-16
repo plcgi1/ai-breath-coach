@@ -13,7 +13,7 @@
   import { i18n, t } from './lib/i18n';
   import { initTelegram } from './lib/telegram.js';
 
-  let data = { techniques: [], user: { purchased: [] } };
+  let data = { techniques: [] };
   let stats = { total: 0, today: 0, history: [] };
   let loading = true;
   let showPaywall = false;
@@ -33,6 +33,11 @@
         icon: '/icon-192.png'
       });
     }
+  }
+
+  function filterDataForPaywall(data) {
+    const result = data.filter((row) => row.status === 'locked');
+    return result;
   }
 
   function scheduleReminder() {
@@ -111,9 +116,7 @@
   });
 
   async function startExercise() {
-    const index = data.techniques.findIndex((t) => t.slug === $selectedTech.slug);
-    const isLocked = index >= 3 && !data.user.purchased.includes($selectedTech.slug);
-    if (isLocked) {
+    if ($selectedTech.status === 'locked') {
       showPaywall = true;
       return;
     }
@@ -168,25 +171,22 @@
     });
   }
 
-  function handlePaymentSuccess(slug) {
-    // Обновляем локальные данные
-    data.user.purchased = [...data.user.purchased, slug];
+  async function handlePaymentSuccess(slug) {
     showPaywall = false;
-    // Можно запустить красивую анимацию конфетти здесь!
+    data = await api.getData();
     launchConfetti();
   }
 
   function handleSelect(tech) {
     if ($session.isRunning) return;
 
-    // Проверяем: это одна из первых 3-х или она есть в купленных?
-    const isFree = data.techniques.indexOf(tech) < 3;
-    const isPurchased = data.user.purchased.includes(tech.slug);
+    const isPurchased = tech.status === 'unlocked';
 
-    if (isFree || isPurchased) {
+    console.info('handleSelect');
+    if (isPurchased) {
       $selectedTech = tech;
+      showPaywall = false;
     } else {
-      // Если не куплено — открываем Paywall для этой конкретной техники
       $selectedTech = tech;
       showPaywall = true;
     }
@@ -210,7 +210,6 @@
       default:
         scale = 1.0;
     }
-    console.info('scale', scale);
     return scale;
   })();
 </script>
@@ -260,7 +259,6 @@
       <PracticeScroll
         techniques={data.techniques}
         selectedSlug={$selectedTech.slug}
-        purchasedSlugs={data.user.purchased}
         onSelect={handleSelect}
       />
     </footer>
@@ -277,6 +275,7 @@
       {handleTouchMove}
       {handleTouchEnd}
       onPaymentSuccess={handlePaymentSuccess}
+      data={filterDataForPaywall(data.techniques)}
     />
   {/if}
 

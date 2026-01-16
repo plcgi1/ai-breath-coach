@@ -12,29 +12,12 @@ export interface OllamaConfig {
   };
 }
 
-export interface RedisConfig {
-  url: string;
-}
-
-export interface mongoConfig {
-  uri: string;
-  dbName: string;
-  checkpointCollectionName: string;
-  checkpointWritesCollectionName: string;
-}
-
-export interface LanggraphConfig {
-  workflow: {
-    maxScore: number;
-    maxIterations: number;
-  };
-}
-
 export type TSourceId = "tg" | "vk";
 
 export interface AuthGuardConfig {
   source?: TSourceId;
   apiKey?: string;
+  webhookSecret?: string;
   skip?: boolean;
 }
 
@@ -45,8 +28,5 @@ export interface AppConfig {
   ip: string;
   logging: LoggingConfig;
   ollama: OllamaConfig;
-  redis: RedisConfig;
-  mongo: mongoConfig;
-  langGraph: LanggraphConfig;
   authGuard: AuthGuardConfig;
 }

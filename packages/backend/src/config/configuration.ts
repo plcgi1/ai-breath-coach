@@ -15,5 +15,6 @@ export const appConfig = registerAs("app", (): AppConfig => {
   const environmentConfig = environments[currentEnv] || {};
 
   const result = { ...defaultConfig, ...environmentConfig };
+
   return result;
 });

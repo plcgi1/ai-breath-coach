@@ -1,71 +1,49 @@
 @startuml
 skinparam actorStyle awesome
 autonumber
-skinparam PackageBackgroundColor #f9f9f9
-skinparam SequenceGroupBodyBackgroundColor #FFFFFF99
-
-header Логика доступа и монетизации Breathing App
-footer Страница %page% из %lastpage%
 
 actor "Пользователь" as User
-participant "Svelte Frontend" as App
-participant "Backend API" as API
-database "PostgreSQL" as DB
+participant "Telegram API / Bot" as TG
 
-== 1. Инициализация (Первое открытие) ==
+box App
+participant "Frontend (Svelte)" as Front
+participant "Backend (API)" as Back
+database "DB" as db
+end box
 
-User -> App: Открывает приложение (TWA)
-App -> API: GET /api/user/layout
-note right of API: Определение прав и структуры 3-х слотов
+== Инициация оплаты ==
 
-API -> DB: Проверка: is_lifetime?
-API -> DB: SELECT slug FROM UserTechniques\nWHERE user_id = ? AND (expired_at > NOW() OR expired_at IS NULL)
-API -> DB: SELECT COUNT(*) FROM Sessions\nWHERE user_id = ? AND date = current_date
-DB --> API: Статус, купленные техники, кол-во сессий сегодня
+User -> Front : Нажимает "Оплатить"
+Front -> Back : POST /api/payment/invoice (slug)
+Back -> TG : createInvoiceLink (название, цена, payload)
+TG --> Back : https://t.me/$invoice_link
+Back --> db++: Сохранить в user_subscriptions(paidUntil, techId, userId, status: 'pending')
+db -> Back--: 
+Back --> Front : { paymentUrl, orderId }
 
-alt Тариф: FREE (Базовый)
-    API --> App: { slots: [base3], limitReached: true/false, isPRO: false }
-else Тариф: ITEM_PURCHASE (N-техник на срок)
-    API --> App: { slots: [base2 + purchased1], limitReached: false, isPRO: false }
-else Тариф: LIFETIME (Вечный)
-    API --> App: { slots: [custom3], limitReached: false, isPRO: true }
+== Процесс оплаты ==
+
+Front -> User : Перенаправляет по paymentUrl (или Telegram.openInvoice)
+User -> TG : Вводит данные / подтверждает звездами
+TG -> User : Показывает "Оплата прошла успешно"
+
+== Обработка результата (Webhook) ==
+
+TG -> Back : POST /api/payment/webhook (Successful Payment)
+note right: Telegram сообщает серверу,\nчто деньги списаны
+Back -> db : Обновляет статус заказа в БД (paid: true)\nДобавляет технику в список юзера(user_subscriptions(status: 'paid'))
+
+== Проверка статуса (Polling) ==
+
+loop Каждые 2-3 секунды (до успеха или таймаута)
+    Front -> Back : GET /api/payment/check-status (orderId)
+    Back --> Front : { status: "paid" }
 end
 
-== 2. Запуск упражнения ==
+== Финал ==
 
-User -> App: Нажимает "СТАРТ" (BreathingCircle)
-App -> App: breathingController.init()
-
-alt Проверка доступа
-    
-    group Доступ закрыт (Лимит 1 сессия в день)
-        App -> App: if (!isPRO && !tech.purchased && limitReached)
-        App -> User: Haptic('error') + Открыть PurchasePanel
-    end
-    
-    group Доступ разрешен (Успех)
-        App -> App: Запуск таймеров (breathing.js)
-        User -> App: Выполняет дыхание
-        
-        App -> API: POST /api/sessions/log { slug, duration }
-        API -> DB: INSERT INTO Sessions (user_id, slug, date)
-        API --> App: 201 Created (Сессия сохранена)
-        
-        ' note right of App
-        '     Для Free-юзера: при следующем 
-        '     запросе limitReached станет true
-        ' end
-    end
-end
-
-== 3. Кастомизация слотов (PRO/Lifetime) ==
-
-User -> App: Открывает ModesPanel (Модалка всех техник)
-User -> App: Выбирает "Zen Flow" -> "Закрепить в Слот 2"
-
-App -> API: PATCH /api/user/layout { slot_index: 1, slug: 'zen-flow-pro' }
-API -> DB: UPDATE UserLayout SET slug = 'zen-flow-pro'\nWHERE user_id = ? AND slot_index = 1
-API --> App: 200 OK (Layout обновлен)
-App -> App: MoodSelector мгновенно меняет кнопку
+Front -> Front : Остановка спиннера (isChecking = false)
+Front -> User : Показывает конфетти / успех
+Front -> Front : Обновляет purchasedSlugs и закрывает Paywall
 
 @enduml

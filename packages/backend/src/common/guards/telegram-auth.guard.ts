@@ -69,10 +69,9 @@ export class TelegramAuthGuard implements CanActivate {
     const user = JSON.parse(urlParams.get("user"));
     const serverUser = await this.lazyReg(user);
 
-    request.user = {
-      ...user,
-      serverId: serverUser.id,
-    };
+    console.info("Authenticated Telegram user:", serverUser);
+
+    request.user = serverUser;
 
     return true;
   }

@@ -5,8 +5,8 @@ import { CDefaultUser } from "../default";
 export const GetUser = createParamDecorator(
   (data: string, ctx: ExecutionContext): Partial<TGUser> | string => {
     const request = ctx.switchToHttp().getRequest();
-    const user = request.user || CDefaultUser;
-
+    const user = request.user;
+    console.log("GetUser decorator accessed, user:", user);
     return data ? user?.[data] : user;
   },
 );

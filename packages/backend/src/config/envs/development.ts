@@ -22,4 +22,9 @@ export const developmentConfig: Partial<AppConfig> = {
     model: process.env.OLLAMA_MODEL || "llama2",
     options: { temperature: 0.1 },
   },
+  authGuard: {
+    source: "tg",
+    apiKey: process.env.TELEGRAM_BOT_TOKEN,
+    webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,
+  },
 };

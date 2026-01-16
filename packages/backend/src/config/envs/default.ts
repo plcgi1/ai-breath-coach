@@ -34,26 +34,9 @@ export const defaultConfig: AppConfig = {
     },
   },
 
-  redis: {
-    url: process.env.REDIS_URL,
-  },
-
-  mongo: {
-    uri: process.env.MONGO_URI,
-    dbName: process.env.MONGO_DBNAME,
-    checkpointCollectionName: "checkpoints",
-    checkpointWritesCollectionName: "checkpoint_writes",
-  },
-
-  langGraph: {
-    workflow: {
-      maxIterations: 3,
-      maxScore: 8,
-    },
-  },
-
   authGuard: {
     source: "tg",
     apiKey: process.env.TELEGRAM_BOT_TOKEN,
+    webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,
   },
 };

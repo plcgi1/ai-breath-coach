@@ -3,18 +3,18 @@ import { ConfigModule } from "@nestjs/config";
 import { LoggerModule } from "nestjs-pino";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
-// import { McpModule } from '@rekog/mcp-nest';
 
 // Импорт бизнес-модулей
 // import { AuthModule } from "./modules/auth/auth.module";
 import { BreathingModule } from "./modules/breathing/breathing.module";
 import { StatisticsModule } from "./modules/statistic/statistics.module";
 // import { BotModule } from './modules/bot/bot.module';
-// import { PaymentsModule } from './modules/payments/payments.module';
 // import { McpCoreModule } from './mcp/mcp.module';
 
 import { appConfig } from "./config/configuration";
 import { DatabaseModule } from "./database/database.module";
+import { PaymentModule } from "./modules/payments/payment.module";
+
 const globalConfig = appConfig();
 
 @Module({
@@ -46,6 +46,7 @@ const globalConfig = appConfig();
     // BotModule,
     BreathingModule,
     StatisticsModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [],

@@ -4,9 +4,16 @@ import {
   Model,
   Table,
   HasMany,
+  HasOne,
   BelongsTo,
 } from "sequelize-typescript";
 import { Statistics } from "./statistics.model";
+import { UserSubscriptions } from "./user-subscriptions.model";
+
+export enum ETechniqueType {
+  free = "free",
+  premium = "premium",
+}
 
 @Table({ tableName: "technique", timestamps: true })
 export class Technique extends Model {
@@ -45,6 +52,16 @@ export class Technique extends Model {
   @Column({ type: DataType.STRING, allowNull: false })
   sortBy: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    defaultValue: ETechniqueType.premium,
+  })
+  type: string;
+
   @HasMany(() => Statistics)
   stats: Statistics[];
+
+  @HasOne(() => UserSubscriptions)
+  purchase: UserSubscriptions;
 }

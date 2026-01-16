@@ -2,12 +2,13 @@
   import { api } from '../lib/api';
   import { selectedTech } from '../lib/store/session';
   import { t } from '../lib/i18n';
-  import { breathingPractices } from '../lib/practices.js'; // Добавлен импорт всех техник
   import PracticeScroll from './PracticeScroll.svelte';
+  import { tg } from '../lib/telegram';
 
   export let show = false;
   export let purchasedSlugs = []; // Передаем список купленных из App.svelte
   export let onPaymentSuccess;
+  export let data = [];
 
   let isChecking = false;
   let pollingInterval;
@@ -18,30 +19,39 @@
   const PRICE_AI = 799;
 
   function calcBenefit(singlePrice, aiPrice) {
-    const premiumPracticesCount = breathingPractices.length - 3;
+    const premiumPracticesCount = data.length - 3;
     const totalCostSeparately = premiumPracticesCount * singlePrice;
     const savings = totalCostSeparately - aiPrice;
     const savingsPercent = Math.round((savings / totalCostSeparately) * 100);
     return { totalCostSeparately, savings, savingsPercent };
   }
-    
+
   // Внутреннее состояние выбора в самом каталоге Paywall
   let localSelected = $selectedTech;
   let currentType = null; // Новый флаг для локального спиннера
+
+  function paymentCallback(invoicePayload) {
+    console.info('Payment callback received with payload:', invoicePayload);
+    // Здесь можно обработать успешный платеж, если нужно
+  }
+
   async function handlePayment(type) {
+    console.info('handlePayment called with type:', type);
+
     if (isChecking) return;
     currentType = type; // Запоминаем, какая кнопка нажата
     try {
-      const productSlug = type === 'ai' ? 'ai_unlimited' : localSelected.slug;
-      const { paymentUrl, orderId } = await api.createOrder(productSlug);
+      console.info('Creating order for type:', localSelected);
+      const { invoiceUrl, orderId } = await api.createOrder(type, localSelected.id);
 
       // Открываем платежную ссылку (если API её возвращает)
-      if (paymentUrl) {
-        console.info('Opening payment URL:', paymentUrl);
+      if (invoiceUrl) {
+        console.info('Opening payment URL:', invoiceUrl);
         // TODO window.open(paymentUrl, '_blank');
+        // tg.openInvoice(invoiceUrl, paymentCallback);
       }
 
-      startPolling(orderId, productSlug);
+      startPolling(orderId, type);
     } catch (e) {
       console.error('Error:', e);
       isChecking = false;
@@ -49,7 +59,7 @@
     }
   }
 
-  function startPolling(orderId, slug) {
+  function startPolling(orderId, type) {
     isChecking = true;
     pollingInterval = setInterval(async () => {
       try {
@@ -57,7 +67,7 @@
         if (status.paid) {
           clearInterval(pollingInterval);
           isChecking = false;
-          onPaymentSuccess(slug);
+          onPaymentSuccess(type);
           close();
         }
       } catch (e) {
@@ -76,13 +86,9 @@
     }, 400);
   }
 
-  $: isOwned =
-    purchasedSlugs.includes(localSelected.slug) || breathingPractices.indexOf(localSelected) < 3;
+  $: isOwned = purchasedSlugs.includes(localSelected.slug);
 
-  const { totalCostSeparately, savings, savingsPercent } = calcBenefit(
-    PRICE_SINGLE,
-    PRICE_AI
-  );
+  const { totalCostSeparately, savings, savingsPercent } = calcBenefit(PRICE_SINGLE, PRICE_AI);
 </script>
 
 {#if show}
@@ -95,7 +101,7 @@
 
       <div class="paywall-catalog-container">
         <PracticeScroll
-          techniques={breathingPractices}
+          techniques={data}
           selectedSlug={localSelected.slug}
           {purchasedSlugs}
           onSelect={(tech) => (localSelected = tech)}
@@ -138,7 +144,7 @@
         </div>
 
         <div
-          class="offer-card ai-all active {isChecking && currentType === 'ai'
+          class="offer-card ai-all active {isChecking && currentType === 'premium'
             ? 'checking-pulse'
             : ''}"
         >
@@ -150,25 +156,28 @@
           <p class="offer-desc">Все практики и ИИ-инструктор</p>
           <div class="price-tag small">{PRICE_AI} ⭐</div>
 
-          <button 
-    class="pay-btn" 
-    on:click={() => { currentType = 'ai'; handlePayment('ai'); }}
-    disabled={isChecking}
-  >
-    {#if isChecking && currentType === 'ai'}
-      <div class="spinner"></div>
-    {:else}
-      Открыть доступ
-    {/if}
-  </button>
-  
-  <p class="save-amount">Экономия составит ~{savings} ⭐</p>
+          <button
+            class="pay-btn"
+            on:click={() => {
+              currentType = 'premium';
+              handlePayment('premium');
+            }}
+            disabled={isChecking}
+          >
+            {#if isChecking && currentType === 'premium'}
+              <div class="spinner"></div>
+            {:else}
+              Открыть доступ
+            {/if}
+          </button>
+
+          <p class="save-amount">Экономия составит ~{savings} ⭐</p>
         </div>
       </div>
       <div class="paywall-footer-info">
-  <p>Все тарифы действуют 30 дней с момента оплаты.</p>
-  <p>Подписка не продлевается автоматически. Вы сами решите, когда продлить доступ.</p>
-</div>
+        <p>Все тарифы действуют 30 дней с момента оплаты.</p>
+        <p>Подписка не продлевается автоматически. Вы сами решите, когда продлить доступ.</p>
+      </div>
 
       <button class="close-txt" on:click={close}>{$t('paywall.leave_free')}</button>
     </div>
@@ -374,5 +383,4 @@
     animation: pulse 1.5s infinite ease-in-out;
     border-color: #fbbf24 !important;
   }
-
 </style>

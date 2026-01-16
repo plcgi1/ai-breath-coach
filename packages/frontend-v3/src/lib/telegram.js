@@ -3,6 +3,9 @@
  */
 
 export const tg = window.Telegram?.WebApp;
+const tgAuthKey = import.meta.env.VITE_TG_AUTH_KEY;
+
+console.info('tgAuthKey:', tgAuthKey);
 
 /**
  * Инициализация Telegram WebApp
@@ -25,7 +28,7 @@ export function initTelegram() {
   return tg;
 }
 
-export const initUserAuthData = window.Telegram?.WebApp?.initData || '';
+export const initUserAuthData = window.Telegram?.WebApp?.initData || tgAuthKey || '';
 export const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || null;
 
 /**

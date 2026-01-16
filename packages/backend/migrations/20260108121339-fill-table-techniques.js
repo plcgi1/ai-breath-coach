@@ -12,7 +12,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 1,
       description:
         "Метод Navy SEALs (спецназа США). Применяется для мгновенной фокусировки и успокоения нервной системы в стрессовых ситуациях через балансировку симпатической и парасимпатической систем.",
-      status: "free",
+      type: "free",
       settings: JSON.stringify([
         { inhale: 4, holdIn: 4, exhale: 4, holdOut: 4, rounds: 15 },
       ]),
@@ -43,7 +43,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 2,
       description:
         "Разработана доктором Эндрю Вейлом (Гарвард). Это естественный транквилизатор для нервной системы. Взята из практики пранаямы для борьбы с бессонницей и чувством тревоги.",
-      status: "free",
+      type: "free",
       settings: JSON.stringify([
         { inhale: 4, holdIn: 7, exhale: 8, holdOut: 0, rounds: 5 },
       ]),
@@ -72,7 +72,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 3,
       description:
         "Разработана советским врачом К.П. Бутейко. Учит организм эффективно использовать углекислый газ, устраняет гипервентиляцию и помогает при заложенности носа и астме.",
-      status: "free",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 2, holdIn: 0, exhale: 3, holdOut: 5, rounds: 30 },
       ]),
@@ -102,7 +102,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 4,
       description:
         'Техника "Симхасана" из Хатха-йоги. Используется для снятия напряжения в лицевых мышцах, горле и груди, а также для стимуляции миндалевидного тела, что помогает снизить агрессию и страх.',
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 30 },
       ]),
@@ -132,7 +132,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 5,
       description:
         "Очищающая техника (шаткарма) из йоги. Короткие, мощные выдохи тонизируют органы брюшной полости, очищают носовые пазухи и насыщают мозг кислородом для ясности мыслей.",
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 1, holdIn: 0, exhale: 1, holdOut: 0, rounds: 30 },
       ]),
@@ -162,7 +162,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 6,
       description:
         "Научно обоснованный метод когерентного дыхания. Выравнивает сердечный ритм (HRV), вводя организм в состояние максимальной биологической эффективности и спокойствия.",
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 6, holdIn: 0, exhale: 6, holdOut: 0, rounds: 15 },
       ]),
@@ -191,7 +191,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 7,
       description:
         'Психосоматическая техника для работы с подавленным гневом. Сначала мы "раскачиваем" энергию быстрым темпом, а затем резко замедляемся для заземления и осознания.',
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 1, holdIn: 0, exhale: 1, holdOut: 0, rounds: 20 }, // Фаза 1: Интенсивный выплеск
         { inhale: 4, holdIn: 4, exhale: 8, holdOut: 0, rounds: 5 }, // Фаза 2: Глубокое успокоение
@@ -221,7 +221,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 8,
       description:
         'КПТ-техника для мягкого вывода из состояния высокой тревоги. Мы постепенно удлиняем выдох с каждым новым этапом, "обманывая" мозг и замедляя пульс без стресса.',
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 3, holdIn: 0, exhale: 3, holdOut: 0, rounds: 4 }, // Уровень 1: Равный ритм
         { inhale: 3, holdIn: 0, exhale: 5, holdOut: 0, rounds: 4 }, // Уровень 2: Удлинение
@@ -252,7 +252,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 9,
       description:
         'Техника для борьбы с "зацикленным" мышлением. Резкая смена ритмов заставляет мозг переключиться с внутренних диалогов на контроль дыхания.',
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 1, holdIn: 2, exhale: 1, holdOut: 2, rounds: 10 }, // Быстрые "задержки" для концентрации
         { inhale: 5, holdIn: 0, exhale: 5, holdOut: 0, rounds: 5 }, // Плавный баланс
@@ -282,7 +282,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 10,
       description:
         "Адаптированный метод Вима Хофа. Контролируемая гипервентиляция для повышения выносливости, укрепления иммунитета и выработки адреналина естественным путем.",
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 2, holdIn: 0, exhale: 1, holdOut: 15, rounds: 9 },
       ]),
@@ -312,7 +312,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 11,
       description:
         'Техника "Бхастрика". Мощное энергизирующее дыхание, которое раздувает "внутренний огонь", ускоряет метаболизм и помогает быстро согреться или проснуться без кофеина.',
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 2, holdIn: 0, exhale: 2, holdOut: 0, rounds: 20 },
       ]),
@@ -342,7 +342,7 @@ export const up = async ({ context: queryInterface }) => {
       sortBy: 12,
       description:
         "Клиническая техника когнитивно-поведенческой терапии. Удлиненный выдох сигнализирует мозгу, что опасности нет, быстро прерывая цикл панической атаки.",
-      status: "premium",
+      type: "premium",
       settings: JSON.stringify([
         { inhale: 3, holdIn: 0, exhale: 6, holdOut: 0, rounds: 20 },
       ]),

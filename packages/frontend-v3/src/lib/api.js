@@ -1,25 +1,22 @@
 import { CONFIG } from '../config.js';
-import { breathingPractices } from './practices.js';
 import { initUserAuthData } from './telegram.js';
-
-console.info('API URL:', CONFIG.apiUrl);
 
 async function fetchAPI(endpoint, options = {}) {
   try {
-  const response = await fetch(`${CONFIG.apiUrl}${endpoint}`, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                 Authorization: `twa ${initUserAuthData}`,
-             }
-        });
+    const response = await fetch(`${CONFIG.apiUrl}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `twa ${initUserAuthData}`
+      }
+    });
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.warn('API Error:', error);
-        return null;
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.warn('API Error:', error);
+    return null;
+  }
 }
 
 export const api = {
@@ -55,6 +52,21 @@ export const api = {
     };
   },
 
+  async createOrder(type, techId = null) {
+    const payload = {
+      order: type,
+      techId
+    };
+    const result = await fetchAPI('/payments/invoice', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    console.log('createOrder result:', result);
+    return result;
+
+    // return { success: true, orderId: 'ORDER12345', invoiceUrl: 'https://example.com/payment' };
+  },
+
   async logSession(slug) {
     const history = JSON.parse(localStorage.getItem('nebula_history') || '[]');
     history.push({ slug, date: new Date().toISOString() });
@@ -71,22 +83,13 @@ export const api = {
     };
   },
 
-  async createOrder(slug) {
-    // Здесь должна быть логика создания заказа через платежный шлюз
-    // const response = await fetch('/api/orders', {
-    //     method: 'POST',
-    //     body: JSON.stringify({ slug: techSlug, initData: window.Telegram.WebApp.initData })
-    // });
-    // return await response.json(); // возвращает { payment_url, order_id }
-    return { success: true, orderId: 'ORDER12345', paymentUrl: 'https://example.com/payment' };
-  },
-
   async checkPaymentStatus(orderId) {
-    // const response = await fetch(`/api/orders/${orderId}/status`);
-    // return await response.json(); // возвращает { is_paid: true/false }
+    const result = await fetchAPI(`/payments/check-order?orderId=${orderId}`, {
+      method: 'GET'
+    });
+    console.log('checkPaymentStatus result:', result);
 
-    // Здесь должна быть логика проверки статуса платежа
-    return { paid: true };
+    return { paid: result.status === 'paid' };
   }
 };
 

@@ -1,13 +1,14 @@
 <script>
   export let techniques = [];
   export let selectedSlug = '';
-  export let purchasedSlugs = [];
   export let onSelect; // Callback функция при клике
 
   // Вспомогательная функция для определения статуса (как в App.svelte)
-  function getStatus(tech, index) {
-    if (index < 3) return 'free';
-    if (purchasedSlugs.includes(tech.slug)) return 'paid';
+  function getStatus(tech) {
+    if (['unlocked'].includes(tech.status)) {
+      return 'paid';
+    }
+
     return 'locked';
   }
 </script>
@@ -15,7 +16,7 @@
 <div class="scroll-wrapper">
   <div class="slots-scroll">
     {#each techniques as tech, i}
-      {@const status = getStatus(tech, i)}
+      {@const status = getStatus(tech)}
       <button
         class="slot {selectedSlug === tech.slug ? 'active' : ''} {status === 'locked'
           ? 'locked'
@@ -28,7 +29,7 @@
           <div class="lock-overlay">
             <span class="lock-icon">🔒</span>
           </div>
-        {:else if status === 'paid' && i >= 3}
+        {:else if status === 'paid'}
           <div class="status-badge success">✅</div>
         {/if}
       </button>

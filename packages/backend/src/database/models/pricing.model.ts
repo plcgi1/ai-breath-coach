@@ -1,12 +1,4 @@
-import {
-  Column,
-  DataType,
-  Model,
-  Table,
-  ForeignKey,
-  BelongsTo,
-} from "sequelize-typescript";
-import { Policy } from "./policy.model";
+import { Column, DataType, Model, Table } from "sequelize-typescript";
 
 @Table({ tableName: "pricing", timestamps: true, updatedAt: false })
 export class Pricing extends Model {
@@ -16,13 +8,6 @@ export class Pricing extends Model {
     primaryKey: true,
   })
   id: string;
-
-  @ForeignKey(() => Policy)
-  @Column({ type: DataType.UUID, allowNull: false })
-  policyId: string;
-
-  @BelongsTo(() => Policy)
-  policy: Policy;
 
   @Column({ type: DataType.DECIMAL(10, 9), allowNull: false })
   price: number;

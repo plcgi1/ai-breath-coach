@@ -12,6 +12,7 @@ import { AnalyzeDto } from "./dto/analyze.dto";
 import { BreathingService } from "./breathing.service";
 import { GetUser } from "../../common/decorators/user.decorator";
 import { PaymentGuard } from "../../common/guards/payment.guard";
+import { Technique } from "src/database/models/technique.model";
 
 @Controller("breathing")
 export class BreathingController {
@@ -19,8 +20,8 @@ export class BreathingController {
 
   @UseGuards(TelegramAuthGuard, PaymentGuard)
   @Get("techniques")
-  async getTechniques() {
-    const techniques = await this.breathingService.getTechniques();
+  async getTechniques(@GetUser("id") userId: string): Promise<Technique[]> {
+    const techniques = await this.breathingService.getList(userId);
     return techniques;
   }
 

@@ -1,19 +1,37 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
-import { Technique } from "../../database/models/technique.model";
+import {
+  ETechniqueType,
+  Technique,
+} from "../../database/models/technique.model";
 import { AiResponse } from "../ai/interfaces/ai-provider.interface";
 import { ModelFactory } from "../ai/ai.factory";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { selectTechniqueTool } from "./breathing.tools";
 import { Sequelize } from "sequelize-typescript";
-import { Transaction } from "sequelize";
+import { Transaction, where } from "sequelize";
 import { StatisticsService } from "../statistic/statistics.service";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
+import {
+  EOrderStatus,
+  UserSubscriptions,
+} from "../../database/models/user-subscriptions.model";
 
 type TGetTchBySlug = {
   score;
   description;
 };
+
+export enum ETechniqueStatus {
+  locked = "locked",
+  unlocked = "unlocked",
+}
+export type TTechniqueWithPurchase = Technique & {
+  purchase: UserSubscriptions;
+};
+export interface ITechniqueListResponse extends TTechniqueWithPurchase {
+  status: ETechniqueStatus;
+}
 
 @Injectable()
 export class BreathingService {
@@ -29,20 +47,48 @@ export class BreathingService {
     private readonly logger: PinoLogger,
   ) {}
 
-  async getList(): Promise<Technique[]> {
-    const techniques = await this.techniqueModel.findAll({
-      order: ["sortBy"],
-    });
-    // TODO обогатить параметрами из pricing и policy
-    return techniques;
+  async getTechniqueById(id: string): Promise<Technique> {
+    const technique = await this.techniqueModel.findByPk(id);
+    return technique;
   }
 
-  async getTechniques(): Promise<Technique[]> {
+  getInclude(userId: string) {
+    return [
+      {
+        model: UserSubscriptions,
+        where: { userId },
+        required: false,
+      },
+    ];
+  }
+
+  async getList(userId: string): Promise<ITechniqueListResponse[]> {
+    const include = this.getInclude(userId);
     const techniques = await this.techniqueModel.findAll({
+      include,
       order: ["sortBy"],
     });
 
-    return techniques;
+    return this.formatList(techniques);
+  }
+
+  formatList(techniques: Technique[]): ITechniqueListResponse[] {
+    const techniquesWithStatus = techniques.map((tech) => {
+      const techJson = tech.toJSON() as TTechniqueWithPurchase;
+      const status = this.getTechStatus(techJson);
+      return { ...techJson, status } as ITechniqueListResponse;
+    });
+    return techniquesWithStatus;
+  }
+
+  getTechStatus(tech: Technique): ETechniqueStatus {
+    let status = ETechniqueStatus.locked;
+    if (tech.type === ETechniqueType.free) {
+      status = ETechniqueStatus.unlocked;
+    } else if (tech.purchase && tech.purchase.status === EOrderStatus.paid) {
+      status = ETechniqueStatus.unlocked;
+    }
+    return status;
   }
 
   private async getAvailableSlugsContext(): Promise<string> {

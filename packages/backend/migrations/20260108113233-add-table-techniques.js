@@ -35,7 +35,11 @@ export const up = async ({ context: queryInterface }) => {
       type: DataTypes.JSONB,
       allowNull: false,
     },
-
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "premium",
+    },
     icon: {
       type: DataTypes.STRING,
       allowNull: false,

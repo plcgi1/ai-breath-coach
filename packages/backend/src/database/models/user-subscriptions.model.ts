@@ -8,8 +8,20 @@ import {
 } from "sequelize-typescript";
 import { User } from "./user.model";
 import { Pricing } from "./pricing.model";
+import { Technique } from "./technique.model";
 
-@Table({ tableName: "user_subscriptions", timestamps: true, updatedAt: false })
+export enum EOrderType {
+  single = "single",
+  premium = "premium",
+}
+
+export enum EOrderStatus {
+  pending = "pending",
+  paid = "paid",
+  cancelled = "cancelled",
+}
+
+@Table({ tableName: "user_subscription", timestamps: true })
 export class UserSubscriptions extends Model {
   @Column({
     type: DataType.UUID,
@@ -26,9 +38,32 @@ export class UserSubscriptions extends Model {
   @Column({ type: DataType.UUID, allowNull: false })
   priceId: string;
 
-  @BelongsTo(() => User)
-  user: User;
-
   @BelongsTo(() => Pricing)
   price: Pricing;
+
+  @ForeignKey(() => Technique)
+  @Column({ type: DataType.UUID, allowNull: true })
+  techId: string;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  orderType: EOrderType;
+
+  @Column({ type: DataType.STRING })
+  orderUrl: string;
+
+  @Column({ type: DataType.DATE, allowNull: false })
+  startedAt: Date;
+
+  @Column({ type: DataType.DATE, allowNull: false })
+  expiredAt: Date;
+
+  @Column({ type: DataType.DATE })
+  paidAt: Date;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    defaultValue: EOrderStatus.pending,
+  })
+  status: EOrderStatus;
 }
