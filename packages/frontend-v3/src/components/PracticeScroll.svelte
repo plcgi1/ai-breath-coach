@@ -47,7 +47,7 @@
   .slots-scroll {
     display: flex;
     gap: 14px;
-    padding: 15px 40px;
+    padding: 15px 20px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;

@@ -2,12 +2,11 @@
   import { api } from '../lib/api';
   import { selectedTech } from '../lib/store/session';
   import { t } from '../lib/i18n';
-  import PracticeScroll from './PracticeScroll.svelte';
   import { lockedTechniques, unlockedTechniques } from '../lib/store/techniques';
   import { tg } from '../lib/telegram';
+  import { pricing } from '../lib/store/pricing';
 
   export let show = false;
-  export let purchasedSlugs = []; // Передаем список купленных из App.svelte
   export let onPaymentSuccess;
 
   let isChecking = false;
@@ -15,14 +14,13 @@
   let isClosing = false;
 
   // Цены для MVP
-  const PRICE_SINGLE = 99;
-  const PRICE_AI = 799;
+  const PRICE_SINGLE = $pricing[0].price;
+  const PRICE_AI = $pricing[1].price;
 
   function calcBenefit(singlePrice, aiPrice) {
-    const totalCostSeparately = $unlockedTechniques.length * singlePrice;
-    const savings = totalCostSeparately - aiPrice;
-    const savingsPercent = Math.round((savings / totalCostSeparately) * 100);
-    return { totalCostSeparately, savings, savingsPercent };
+    const totalPrice = ($unlockedTechniques.length + $lockedTechniques.length) * singlePrice;
+    const savings = totalPrice * 0.4;
+    return { savings };
   }
 
   // Внутреннее состояние выбора в самом каталоге Paywall
@@ -80,9 +78,8 @@
       isChecking = false;
       isClosing = false;
       show = false;
-    }, 400);
+    }, 100);
   }
-
   const { savings } = calcBenefit(PRICE_SINGLE, PRICE_AI);
 </script>
 
@@ -92,16 +89,8 @@
 
     <div class="modal-center-css glass {isClosing ? 'modal-exit' : ''}" on:click|stopPropagation>
       <div class="premium-star">⭐</div>
-      <h2>{$t('paywall.title')}</h2>
+      <h2>{@html $t('paywall.title')}</h2>
 
-      <div class="paywall-catalog-container">
-        <PracticeScroll
-          techniques={$lockedTechniques}
-          selectedSlug={localSelected.slug}
-          {purchasedSlugs}
-          onSelect={(tech) => (localSelected = tech)}
-        />
-      </div>
       <div class="offers-container">
         <div
           class="offer-card single {isChecking && currentType === 'single' ? 'checking-pulse' : ''}"
@@ -111,22 +100,22 @@
             <h3>{localSelected.name}</h3>
           </div>
 
-          <p class="offer-desc">Доступ на 30 дней к выбранной технике</p>
-            <div class="price-tag small">{PRICE_SINGLE} ⭐</div>
-            <button
-              class="pay-btn secondary"
-              on:click={() => {
-                currentType = 'single';
-                handlePayment('single');
-              }}
-              disabled={isChecking}
-            >
-              {#if isChecking && currentType === 'single'}
-                <div class="spinner"></div>
-              {:else}
-                Выбрать
-              {/if}
-            </button>
+          <p class="offer-desc">{localSelected.description}</p>
+          <div class="price-tag small">{PRICE_SINGLE} ⭐</div>
+          <button
+            class="pay-btn secondary"
+            on:click={() => {
+              currentType = 'single';
+              handlePayment('single');
+            }}
+            disabled={isChecking || localSelected.status === 'unlocked'}
+          >
+            {#if isChecking && currentType === 'single'}
+              <div class="spinner"></div>
+            {:else}
+              Выбрать
+            {/if}
+          </button>
         </div>
 
         <div
@@ -134,12 +123,12 @@
             ? 'checking-pulse'
             : ''}"
         >
-          <div class="benefit-label">BEST VALUE</div>
+          <div class="benefit-label">{@html $t('paywall.bestValue')}</div>
           <div class="offer-header">
             <span class="offer-icon">🤖</span>
-            <h3>AI + Все</h3>
+            <h3>{@html $t('paywall.priceLabel')}</h3>
           </div>
-          <p class="offer-desc">Все практики и ИИ-инструктор</p>
+          <p class="offer-desc">{@html $t('paywall.priceDescription')}</p>
           <div class="price-tag small">{PRICE_AI} ⭐</div>
 
           <button
@@ -153,16 +142,16 @@
             {#if isChecking && currentType === 'premium'}
               <div class="spinner"></div>
             {:else}
-              Открыть доступ
+              {@html $t('paywall.openAccess')}
             {/if}
           </button>
 
-          <p class="save-amount">Экономия составит ~{savings} ⭐</p>
+          <p class="save-amount">{@html $t('paywall.economyIs')} ~{savings} ⭐</p>
         </div>
       </div>
       <div class="paywall-footer-info">
-        <p>Все тарифы действуют 30 дней с момента оплаты.</p>
-        <p>Подписка не продлевается автоматически. Вы сами решите, когда продлить доступ.</p>
+        <p>{@html $t('paywall.30daysTip')}.</p>
+        <p>{@html $t('paywall.tipSubscription')}</p>
       </div>
 
       <button class="close-txt" on:click={close}>{$t('paywall.leave_free')}</button>
@@ -335,10 +324,6 @@
     100% {
       opacity: 1;
     }
-  }
-  
-  .paywall-catalog-container {
-    margin: 10px -24px; /* Чтобы скролл уходил в края модалки */
   }
 
   .paywall-footer-info {

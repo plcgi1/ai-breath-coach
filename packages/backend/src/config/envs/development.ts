@@ -26,5 +26,6 @@ export const developmentConfig: Partial<AppConfig> = {
     source: "tg",
     apiKey: process.env.TELEGRAM_BOT_TOKEN,
     webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,
+    ttl: 3600 * 24 * 30
   },
 };

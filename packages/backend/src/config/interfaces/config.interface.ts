@@ -19,6 +19,7 @@ export interface AuthGuardConfig {
   apiKey?: string;
   webhookSecret?: string;
   skip?: boolean;
+  ttl: number
 }
 
 export interface AppConfig {

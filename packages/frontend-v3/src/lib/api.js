@@ -20,21 +20,6 @@ async function fetchAPI(endpoint, options = {}) {
 }
 
 export const api = {
-  async askAI(query) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Пример ответа от ИИ
-        resolve({
-          slug: 'lion',
-          name: 'Сила Льва',
-          icon: '🦁',
-          is_free: false,
-          settings: [{ inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 8 }]
-        });
-      });
-    });
-  },
-
   async getTechniques() {
     const response = await fetchAPI(`/breathing/techniques`);
     if (!response) throw new Error('Network error');
@@ -42,13 +27,9 @@ export const api = {
   },
 
   async getData() {
-    const purchased = JSON.parse(localStorage.getItem('nebula_purchases') || '[]');
     const techniques = await this.getTechniques();
     return {
-      techniques,
-      user: {
-        purchased
-      }
+      techniques
     };
   },
 
@@ -65,7 +46,7 @@ export const api = {
     return result;
   },
 
-   async checkPaymentStatus(orderId) {
+  async checkPaymentStatus(orderId) {
     const result = await fetchAPI(`/payments/check-order?orderId=${orderId}`, {
       method: 'GET'
     });
@@ -74,12 +55,37 @@ export const api = {
     return { paid: result.status === 'paid' };
   },
 
+  async getPricing() {
+    const result = await fetchAPI('/pricing/list', {
+      method: 'GET'
+    });
+    return result;
+  },
+
+  // TODO implement me
+  async askAI(query) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Пример ответа от ИИ
+        resolve({
+          slug: 'lion',
+          name: 'Сила Льва',
+          icon: '🦁',
+          is_free: false,
+          settings: [{ inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 8 }]
+        });
+      });
+    });
+  },
+
+  // TODO implement me
   async logSession(slug) {
     const history = JSON.parse(localStorage.getItem('nebula_history') || '[]');
     history.push({ slug, date: new Date().toISOString() });
     localStorage.setItem('nebula_history', JSON.stringify(history));
   },
 
+  // TODO implement me
   async getStats() {
     const history = JSON.parse(localStorage.getItem('nebula_history') || '[]');
     const today = new Date().toDateString();
@@ -88,5 +94,5 @@ export const api = {
       today: history.filter((s) => new Date(s.date).toDateString() === today).length,
       history: history.slice(-5).reverse()
     };
-  }, 
+  }
 };

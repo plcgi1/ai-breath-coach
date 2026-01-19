@@ -60,7 +60,7 @@ export class TelegramAuthGuard implements CanActivate {
       throw new UnauthorizedException("Invalid authorization type");
     }
 
-    if (!this.validate(data)) {
+    if (!this.validate(data, config.authGuard.ttl)) {
       throw new UnauthorizedException("Invalid Telegram init data");
     }
 
@@ -76,7 +76,7 @@ export class TelegramAuthGuard implements CanActivate {
     return true;
   }
 
-  private validate(initData: string): boolean {
+  private validate(initData: string, ttl: number): boolean {
     const botToken = this.configService.get<string>("TELEGRAM_BOT_TOKEN");
 
     const urlParams = new URLSearchParams(initData);
@@ -87,8 +87,7 @@ export class TelegramAuthGuard implements CanActivate {
 
     const authTimestamp = parseInt(authDate, 10);
     const now = Math.floor(Date.now() / 1000); // Текущее время в секундах
-    const MAX_AGE = 86400; // 24 часа в секундах
-    if (now - authTimestamp > MAX_AGE) {
+    if (now - authTimestamp > ttl) {
       // Данные устарели (более 24 часов)
       return false;
     }

@@ -3,5 +3,7 @@ import { i18n } from './lib/i18n';
 export const CONFIG = {
   apiUrl: '/api',
   appName: i18n('appName'),
-  appFullName: i18n('appFullName')
+  appFullName: i18n('appFullName'),
+  botName: import.meta.env.VITE_TG_BOT_NAME,
+  tgAuthKey: import.meta.env.VITE_TG_AUTH_KEY
 };

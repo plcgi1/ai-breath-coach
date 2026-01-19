@@ -5,8 +5,6 @@
 export const tg = window.Telegram?.WebApp;
 const tgAuthKey = import.meta.env.VITE_TG_AUTH_KEY;
 
-console.info('tgAuthKey:', tgAuthKey);
-
 /**
  * Инициализация Telegram WebApp
  */

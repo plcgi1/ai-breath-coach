@@ -1,9 +1,14 @@
 ## Запуск
 
+connect to DB - once
 ```
-supabase start
-cd packages/backend
-yarn run start:local
+-- in psql console
+CREATE USER ether_ai WITH PASSWORD '123test';
+ALTER USER ether_ai WITH SUPERUSER;
+ALTER ROLE ether_ai CREATEROLE CREATEDB;
+CREATE DATABASE ether_ai_db;
+GRANT ALL PRIVILEGES ON DATABASE ether_ai_db to ether_ai;
+```
 ```
 
 ## Форматы пользователей
@@ -58,11 +63,20 @@ src/
 ### .env
 ```
 NODE_ENV=development
-PORT=PORT-NUMBER
-MONGO_URI=mongodb://host:27017/ai_coach
-TELEGRAM_BOT_TOKEN=<>
-OLLAMA_URL
-OLLAMA_MODEL
+#NODE_ENV=local
+PORT=3000
+
+DATABASE_URI=postgresql://<user>:<password>@<host>:<port>/<db_name>
+
+TELEGRAM_BOT_TOKEN=<...>
+TELEGRAM_WEBHOOK_SECRET=<...>
+TELEGRAM_WEBHOOK_URL=https://yourdomain.com/path/to/webhook
+
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=mistral
+
+LOCAL_USER=<for local development only>
+
 ```
 
 ### TODO - к выяснению проверка идей

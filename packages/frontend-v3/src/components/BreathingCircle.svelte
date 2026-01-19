@@ -15,6 +15,12 @@
     </div>
   </div>
 
+  <div class="description-container">
+    {#if !$session.isRunning && $session.tech.description}
+      <p class="desc-text">{$session.tech.description}</p>
+    {/if}
+  </div>
+
   <div class="actions">
     {#if !$session.isRunning}
       <button class="main-btn" on:click={startExercise}>Путешествие</button>
@@ -120,5 +126,36 @@
   }
   .stop-btn:active {
     background: rgba(239, 68, 68, 0.25);
+  }
+
+  .description-container {
+    margin-top: 30px;
+    height: 60px; /* Фиксируем высоту, чтобы кнопка не прыгала */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px;
+    text-align: center;
+  }
+
+  .desc-text {
+    color: #a5b4fc;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    opacity: 0.8;
+    margin: 0;
+    /* Анимация появления */
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 0.8;
+      transform: translateY(0);
+    }
   }
 </style>

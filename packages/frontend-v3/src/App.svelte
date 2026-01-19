@@ -5,14 +5,17 @@
   import { api } from './lib/api';
   import { handleTouchStart, handleTouchMove, handleTouchEnd } from './lib/touch';
   import { session, selectedTech } from './lib/store/session';
-  import { techniques, sortedTechniques } from './lib/store/techniques'
+  import { pricing } from './lib/store/pricing';
+  import { techniques, sortedTechniques, lockedTechniques, unlockedTechniques } from './lib/store/techniques';
+  import PracticeLibrary from './components/PracticeLibrary.svelte';
   import AIPanel from './components/AIPanel.svelte';
   import Paywall from './components/Paywall.svelte';
   import Stats from './components/Stats.svelte';
   import PracticeScroll from './components/PracticeScroll.svelte';
-  import ShareButton from './components/ShareButton.svelte';
+
   import { i18n, t } from './lib/i18n';
   import { initTelegram } from './lib/telegram.js';
+  import TabBar from './components/TabBar.svelte';
 
   let data = { techniques: [] };
   let stats = { total: 0, today: 0, history: [] };
@@ -20,7 +23,10 @@
   let showPaywall = false;
   let showStats = false;
 
+  let activeTab = 'home'; // 'home' или 'library'
   let timerInterval;
+
+  let scrollY = 0;
 
   // notification logic
   let notificationsEnabled = false;
@@ -106,8 +112,9 @@
   onMount(async () => {
     initTelegram();
     data = await api.getData();
-    
-    $techniques = data.techniques
+    $pricing = await api.getPricing();
+
+    $techniques = data.techniques;
 
     stats = await api.getStats();
     $selectedTech = data.techniques[0];
@@ -173,22 +180,37 @@
   async function handlePaymentSuccess(slug) {
     showPaywall = false;
     data = await api.getData();
-    $techniques = data.techniques
+    techniques.set(data.techniques);
     launchConfetti();
   }
 
   function handleSelect(tech) {
     if ($session.isRunning) return;
 
+    selectedTech.set(tech);
+
     const isPurchased = tech.status === 'unlocked';
 
     if (isPurchased) {
-      $selectedTech = tech;
       showPaywall = false;
     } else {
-      $selectedTech = tech;
       showPaywall = true;
     }
+  }
+
+  function handleStart(tech) {
+    $selectedTech = tech;
+    activeTab = 'home';
+  }
+
+  function onSelectLibrary(tech) {
+    $selectedTech = tech;
+    showPaywall = tech.status === 'locked';
+  }
+
+  function switchTab(tab) {
+    activeTab = tab;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   $: scale = (() => {
@@ -211,13 +233,16 @@
     }
     return scale;
   })();
+
+  $: isCompact = activeTab === 'library' && scrollY > 20;
 </script>
 
+<svelte:window bind:scrollY />
 <main class="nebula">
   {#if loading}
     <div class="center">Загрузка...</div>
   {:else}
-    <header>
+    <header class="sticky-header" class:shrunk={isCompact}>
       <button on:click={() => (showStats = true)} class="glass-btn">📈</button>
 
       <div class="logo">
@@ -226,41 +251,50 @@
 
       <button on:click={() => (showPaywall = true)} class="stars-btn">99 ⭐</button>
     </header>
-
-    <section class="visualizer-area">
-      <div class="breath-circle" style="transform: scale({scale})">
-        <div class="glow"></div>
-        <div class="content">
-          <div class="timer">{$session.timer || 0}</div>
-          <div class="phase">{$session.phase}</div>
-        </div>
-      </div>
-
-      <div class="actions">
-        {#if !$session.isRunning}
-          <button class="main-btn" on:click={startExercise}>{@html $t('homepage.journey')}</button>
-
-          <div class="ai-trigger-container">
-            <AIPanel
-              techniques={$sortedTechniques}
-              {handleTouchStart}
-              {handleTouchMove}
-              {handleTouchEnd}
-            />
+    {#if activeTab === 'home'}
+      <section class="visualizer-area">
+        <div class="breath-circle" style="transform: scale({scale})">
+          <div class="glow"></div>
+          <div class="content">
+            <div class="timer">{$session.timer || 0}</div>
+            <div class="phase">{$session.phase}</div>
           </div>
-        {:else}
-          <button class="stop-btn" on:click={stopExercise}>{@html $t('homepage.stop')}</button>
-        {/if}
-      </div>
-    </section>
+        </div>
 
-    <footer>
-      <PracticeScroll
-        techniques={$sortedTechniques}
+        <div class="actions">
+          {#if !$session.isRunning}
+            <button class="main-btn" on:click={startExercise}>{@html $t('homepage.journey')}</button
+            >
+
+            <div class="ai-trigger-container">
+              <AIPanel
+                techniques={$sortedTechniques}
+                {handleTouchStart}
+                {handleTouchMove}
+                {handleTouchEnd}
+              />
+            </div>
+          {:else}
+            <button class="stop-btn" on:click={stopExercise}>{@html $t('homepage.stop')}</button>
+          {/if}
+        </div>
+      </section>
+
+      <footer>
+        <PracticeScroll
+          techniques={$unlockedTechniques}
+          selectedSlug={$selectedTech.slug}
+          onSelect={handleSelect}
+        />
+      </footer>
+    {:else}
+      <PracticeLibrary
+        techniques={$lockedTechniques}
         selectedSlug={$selectedTech.slug}
-        onSelect={handleSelect}
+        onSelect={onSelectLibrary}
+        onStart={handleStart}
       />
-    </footer>
+    {/if}
   {/if}
 
   {#if showStats}
@@ -277,12 +311,7 @@
     />
   {/if}
 
-  <div class="actions-row">
-    <ShareButton
-      botUsername="my_cool_yoga_bot"
-      text="Я использую это приложение для дыхательных практик. Присоединяйся! 🧘‍♂️"
-    />
-  </div>
+  <TabBar {switchTab} {activeTab} />
 </main>
 
 <style>
@@ -304,11 +333,13 @@
     height: 100vh;
     width: 100vw;
     position: relative;
-    overflow: hidden; /* Контент внутри не должен толкать экран */
     display: flex;
     flex-direction: column;
     padding: 20px;
     box-sizing: border-box;
+
+    overflow-y: auto; /* Позволяем скролл всему приложению */
+    -webkit-overflow-scrolling: touch; /* Плавный скролл для iOS */
   }
 
   header {
@@ -323,19 +354,6 @@
     font-size: 0.9rem;
     opacity: 0.8;
     color: #818cf8;
-  }
-
-  .glass-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 10px 14px;
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .glass-btn:active {
-    background: rgba(255, 255, 255, 0.15);
   }
 
   .stars-btn {
@@ -355,6 +373,7 @@
     align-items: center;
     justify-content: center;
     margin-bottom: -70px;
+    width: 100%;
   }
 
   .breath-circle {
@@ -447,32 +466,6 @@
     background: rgba(239, 68, 68, 0.25);
   }
 
-  footer {
-    background: rgba(10, 15, 30, 0.8);
-    backdrop-filter: blur(25px);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 15px 15px;
-  }
-
-  .slot {
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 22px;
-    font-size: 1.5rem;
-    position: relative;
-    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    cursor: pointer;
-  }
-
-  .slot.active {
-    border-color: #818cf8;
-    background: rgba(99, 102, 241, 0.25);
-    transform: translateY(-8px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-  }
-
   .ai-trigger-container {
     width: 100%;
     display: flex;
@@ -492,91 +485,67 @@
     background: rgba(129, 140, 248, 0.2);
   }
 
-  .actions-row {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-  }
-
   footer {
     width: 100%;
+    height: 170px;
     padding: 15px 0;
     background: rgba(15, 23, 42, 0.8);
     backdrop-filter: blur(15px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .scroll-wrapper {
-    width: 100%;
-    overflow: hidden;
-    /* Мягкое затухание по краям, чтобы было видно, что можно скроллить */
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  }
-
-  .slots-scroll {
-    display: flex;
-    gap: 14px;
-    padding: 15px 40px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-  }
-
-  /* Скрываем полосу прокрутки */
-  .slots-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  .slot {
-    flex: 0 0 65px;
-    height: 65px;
+  /* Стили твоих кнопок */
+  .glass-btn,
+  .stars-btn {
     background: rgba(255, 255, 255, 0.05);
-    border: 2px solid transparent;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative; /* Обязательно для позиционирования замка */
-    scroll-snap-align: center;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  .stars-btn {
+    border-color: #fbbf24;
+    color: #fbbf24;
+  }
+
+  /* Стили логотипа для компактности в один ряд */
+  .logo {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0 10px;
+  }
+
+  .glass-btn,
+  .stars-btn {
     cursor: pointer;
+    position: relative;
+    z-index: 102;
+    pointer-events: auto !important; /* Принудительно включаем клики */
   }
 
-  .slot.active {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: #6366f1;
-    transform: scale(1.1) translateY(-5px);
-  }
-
-  .lock-overlay {
-    position: absolute;
-    top: -7px; /* Выносим за пределы кнопки вверх */
-    right: -7px; /* Выносим за пределы кнопки вправо */
-    background: #fbbf24; /* Золотой фон */
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
+  .sticky-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: #0f172a;
     display: flex;
+    flex-direction: row; /* Горизонтально */
     align-items: center;
-    justify-content: center;
-    border: 2px solid #0f172a; /* Темная обводка, чтобы отделять от фона */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    z-index: 2;
+    justify-content: space-between;
+    padding: 5px 15px;
+    /* Убираем pointer-events: none отсюда, если он мешает кликам */
+    pointer-events: auto;
+    transition: all 0.3s ease;
   }
-
-  /* Эмодзи замка внутри бейджа */
-  .lock-icon {
-    font-size: 0.7rem;
-    line-height: 1;
-    filter: none !important; /* Отменяем grayscale родителя */
-  }
-
-  /* Скрываем скроллбар */
-  .slots-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  .icon {
-    font-size: 1.6rem;
+  /* Если хедер shrunk, добавляем блюр */
+  .sticky-header.shrunk {
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 </style>

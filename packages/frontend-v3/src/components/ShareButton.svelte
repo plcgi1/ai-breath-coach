@@ -1,6 +1,10 @@
 <script>
-  export let botUsername = 'YOUR_BOT_USERNAME'; // Замени на юзернейм своего бота без @
+  import { t } from '../lib/i18n';
+  import { CONFIG } from '../config.js';
+
   export let text = 'Посмотри на это крутое приложение для практик!';
+
+  const botUsername = CONFIG.botName; // Замени на юзернейм своего бота без @
 
   function handleShare() {
     // Проверяем наличие Telegram WebApp SDK
@@ -40,7 +44,7 @@
       y2="10.49"
     />
   </svg>
-  <span>Поделиться</span>
+  <span>{@html $t('share.share')}</span>
 </button>
 
 <style>
@@ -67,5 +71,61 @@
   .glass {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+  }
+
+  .share-btn {
+    /* Сбрасываем стандартные и старые стили */
+    background: none;
+    border: none;
+    outline: none;
+    box-shadow: none;
+
+    /* Сетка для nav-bar: иконка сверху, текст снизу */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* Размеры и отступы */
+    flex: 1;
+    height: 100%;
+    padding: 0;
+    gap: 4px;
+
+    /* Цвета и шрифт */
+    color: #94a3b8; /* Цвет неактивных табов */
+    font-size: 0.65rem; /* Маленький текст как у остальных вкладок */
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* SVG иконка */
+  .share-btn svg {
+    width: 24px; /* Стандартный размер для иконок меню */
+    height: 24px;
+    margin-bottom: 2px;
+    stroke: currentColor;
+    transition: transform 0.2s ease;
+  }
+
+  /* Эффект при нажатии */
+  .share-btn:active {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+
+  /* Опционально: если хочешь выделить кнопку золотистым цветом */
+  .share-btn {
+    color: #fbbf24;
+  }
+
+  /* Убираем старые glass-эффекты, если они были в глобальных стилях */
+  :global(.share-btn.glass) {
+    background: none !important;
+    border: none !important;
+    backdrop-filter: none !important;
   }
 </style>

@@ -51,7 +51,19 @@ export default {
     'paywall.payment_note': 'Secure payment via Telegram',
     'paywall.catalog_title': 'Premium Library',
     'paywall.free_badge': 'Free',
-    'paywall.locked_badge': 'Locked'
+    'paywall.locked_badge': 'Locked',
+    'paywall.bestValue': 'Best Value',
+    'paywall.priceLabel':'AI and ALL',
+    'paywall.priceDescription':'All practices AND AI instructor',
+    'paywall.openAccess': 'Open access',
+    'paywall.economyIs':'Economy is',
+    'paywall.30daysTip': 'All prices are active in 30 days from payment date',
+    'paywall.tipSubscription':'You can continue subscription manually',
+
+    'tabbar.main': 'Main' ,
+    'tabbar.practices': 'Practices',
+
+    'share.share': 'Share'
   },
 
   ru: {
@@ -108,6 +120,18 @@ export default {
     'paywall.payment_note': 'Безопасная оплата через Telegram',
     'paywall.catalog_title': 'Premium Библиотека',
     'paywall.free_badge': 'Бесплатно',
-    'paywall.locked_badge': 'Заблокировано'
+    'paywall.locked_badge': 'Заблокировано',
+    'paywall.bestValue': 'Лучшее',
+    'paywall.priceLabel':'ИИ + Все',
+    'paywall.priceDescription':'Все практики и ИИ-инструктор',
+    'paywall.openAccess': 'Открыть доступ',
+    'paywall.economyIs':'Экономия составит',
+    'paywall.30daysTip': 'Все тарифы действуют 30 дней с момента оплаты',
+    'paywall.tipSubscription': 'Подписка не продлевается автоматически. Вы сами решите, когда продлить доступ',
+
+    'tabbar.main': 'Главная' ,
+    'tabbar.practices': 'Практики',
+
+    'share.share': 'Поделиться'
   }
 };

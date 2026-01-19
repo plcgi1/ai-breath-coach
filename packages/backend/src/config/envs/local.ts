@@ -29,5 +29,6 @@ export const localConfig: Partial<AppConfig> = {
   authGuard: {
     skip: true,
     webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,
+    ttl: 3600 * 24 * 30
   },
 };

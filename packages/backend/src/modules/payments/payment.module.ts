@@ -11,8 +11,8 @@ import { PricingService } from "../pricing/pricing.service";
 import { BreathingModule } from "../breathing/breathing.module";
 import { BreathingService } from "../breathing/breathing.service";
 import { StatisticsService } from "../statistic/statistics.service";
-import { Technique } from "src/database/models/technique.model";
-import { Statistics } from "src/database/models/statistics.model";
+import { Technique } from "../../database/models/technique.model";
+import { Statistics } from "../../database/models/statistics.model";
 
 @Module({
   imports: [

@@ -25,11 +25,11 @@
 }
 
 body {
-  font-family:
+  /* font-family:
     'Nunito',
     -apple-system,
     BlinkMacSystemFont,
-    sans-serif;
+    sans-serif; */
   background: linear-gradient(
     180deg,
     var(--tg-theme-bg-color) 0%,

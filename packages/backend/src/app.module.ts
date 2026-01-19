@@ -9,11 +9,11 @@ import { join } from "path";
 import { BreathingModule } from "./modules/breathing/breathing.module";
 import { StatisticsModule } from "./modules/statistic/statistics.module";
 // import { BotModule } from './modules/bot/bot.module';
-// import { McpCoreModule } from './mcp/mcp.module';
 
 import { appConfig } from "./config/configuration";
 import { DatabaseModule } from "./database/database.module";
 import { PaymentModule } from "./modules/payments/payment.module";
+import { PricingModule } from "./modules/pricing/pricing.module";
 
 const globalConfig = appConfig();
 
@@ -47,6 +47,7 @@ const globalConfig = appConfig();
     BreathingModule,
     StatisticsModule,
     PaymentModule,
+    PricingModule
   ],
   controllers: [],
   providers: [],
