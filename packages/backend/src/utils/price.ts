@@ -11,7 +11,7 @@ export interface IPricingData {
 export function calculateUpgradePrice(data: IPricingData): number {
   const { totalCount, purchasedCount, baseUnitPrice, fullAllAccessPrice } =
     data;
-
+  console.info('data----------------', data)
   // 1. Если уже куплено всё или больше (на всякий случай)
   if (purchasedCount >= totalCount) return 0;
 

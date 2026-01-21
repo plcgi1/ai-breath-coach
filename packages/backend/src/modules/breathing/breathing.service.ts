@@ -90,11 +90,14 @@ export class BreathingService {
     let purchasedAmount = 0;
     let purchasedCount = 0;
     let nonfreeCount = 0;
+    let firstNonfreeTech
     techniques.forEach((item) => {
       if (item.type === ETechniqueType.free) {
         return;
       }
-
+      if (item.type === ETechniqueType.premium) {
+        firstNonfreeTech = item
+      }
       totalAmount = totalAmount + (Number(item.price) || 0);
       nonfreeCount++;
       if (item.purchase && item.purchase.status === EOrderStatus.paid) {
@@ -106,7 +109,7 @@ export class BreathingService {
     const premiumAmount = calculateUpgradePrice({
       totalCount: nonfreeCount,
       purchasedCount: purchasedCount,
-      baseUnitPrice: techniques[0].price,
+      baseUnitPrice: firstNonfreeTech.price,
       fullAllAccessPrice: totalAmount,
     });
     const economyAmount = totalAmount - premiumAmount;
