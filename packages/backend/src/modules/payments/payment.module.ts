@@ -11,6 +11,8 @@ import { BreathingService } from "../breathing/breathing.service";
 import { StatisticsService } from "../statistic/statistics.service";
 import { Technique } from "../../database/models/technique.model";
 import { Statistics } from "../../database/models/statistics.model";
+import { UserModule } from "../user/user.module";
+import { UserService } from "../user/user.service";
 
 @Module({
   imports: [
@@ -22,8 +24,9 @@ import { Statistics } from "../../database/models/statistics.model";
       Statistics,
     ]),
     BreathingModule,
+    UserModule
   ],
   controllers: [PaymentController],
-  providers: [PaymentService, BreathingService, StatisticsService],
+  providers: [PaymentService, BreathingService, StatisticsService, UserService],
 })
 export class PaymentModule {}

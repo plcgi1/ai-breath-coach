@@ -22,6 +22,8 @@ import { Transaction } from "sequelize";
 import { ETechniqueType, Technique } from "src/database/models/technique.model";
 import { randomUUID } from "node:crypto";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
+import { UserService } from "../user/user.service";
+import { EUserStatus } from "src/database/models/user.model";
 
 @Injectable()
 export class PaymentService {
@@ -32,6 +34,7 @@ export class PaymentService {
     private userSubscriptionsModel: typeof UserSubscriptions,
     private readonly sequelize: Sequelize,
     private breathingService: BreathingService,
+    private userService: UserService,
     private configService: ConfigService,
     @InjectPinoLogger(PaymentService.name)
     private readonly logger: PinoLogger,
@@ -108,7 +111,11 @@ export class PaymentService {
 
         userSubscription.orderUrl = response.data.result;
         await userSubscription.save({ transaction: t });
-
+        await this.userService.updateStatus(
+          EUserStatus.buyerStart, 
+          userId,
+          t
+        )  
         return {
           invoiceUrl: response.data.result,
           orderId,
@@ -175,7 +182,12 @@ export class PaymentService {
         await this.userSubscriptionsModel.bulkCreate(bulkData, {
           transaction: t,
         });
-
+        
+        await this.userService.updateStatus(
+          EUserStatus.premiumStart, 
+          userId,
+          t
+        )  
         return {
           invoiceUrl: response.data.result,
           orderId,
@@ -190,8 +202,8 @@ export class PaymentService {
     });
   }
 
-  async webhookHandler(update: WebhookDto, userId: string) {
-    // // 1. Подтверждение готовности к платежу
+  async webhookHandler(update: WebhookDto) {
+    // 1. Подтверждение готовности к платежу
     if (update.pre_checkout_query) {
       await axios.post(`${this.botApiUrl}/answerPreCheckoutQuery`, {
         pre_checkout_query_id: update.pre_checkout_query.id,
@@ -199,40 +211,55 @@ export class PaymentService {
       });
       return { ok: true };
     }
-
-    // // 2. Обработка успешного платежа
+    // если update.message пусто - нафиг
     const success = update.message?.successful_payment;
     if (!success) {
       return { ok: true };
     }
+    // 2. Обработка успешного платежа
     const payload = JSON.parse(success.invoice_payload);
-    const invoices = await this.getWebhookOrder(payload.oid, userId);
-    const amount = invoices.reduce((sum: number, item: UserSubscriptions) => {
-      return (sum = sum + item.amount);
-    }, 0);
+    return await this.sequelize.transaction(async (t) => {
+      const invoices = await this.getWebhookOrder(payload.oid, t);
+      if(invoices.length === 0) {
+        throw new NotFoundException("No such invoice");
+      }
+      
+      const amount = invoices.reduce((sum: number, item: UserSubscriptions) => {
+        return (sum = sum + item.amount);
+      }, 0);
 
-    if (success.total_amount !== amount) {
-      throw new NotFoundException("Incorrect payment amount");
-    }
+      if (success.total_amount !== amount) {
+        throw new NotFoundException("Incorrect payment amount");
+      }
 
-    await this.userSubscriptionsModel.update(
-      {
-        expiredAt: addDays(new Date(), 30),
-        status: EOrderStatus.paid,
-        paidAt: new Date(),
-      },
-      { where: { orderId: payload.oid } },
-    );
+      const { userId } = invoices[0]
+      await this.userSubscriptionsModel.update(
+        {
+          expiredAt: addDays(new Date(), 30),
+          status: EOrderStatus.paid,
+          paidAt: new Date(),
+        },
+        { where: { orderId: payload.oid }, transaction: t },
+      );
+      const user = await this.userService.getUser(userId, t)
+      const userStatus = this.userService.getNextStatus(user)
+      await this.userService.updateStatus(
+        userStatus, 
+        userId,
+        t
+      )  
 
-    return { ok: true };
+      return { ok: true };
+    })    
   }
 
   async getWebhookOrder(
     orderId: string,
-    userId: string,
+    transaction?: Transaction
   ): Promise<UserSubscriptions[]> {
     const invoices = await this.userSubscriptionsModel.findAll({
-      where: { orderId, userId },
+      where: { orderId },
+      transaction
     });
     if (!invoices) {
       throw new NotFoundException("Invoice not found");

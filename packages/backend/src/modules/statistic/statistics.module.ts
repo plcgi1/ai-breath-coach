@@ -7,7 +7,6 @@ import { User } from "../../database/models/user.model";
 
 @Module({
   imports: [
-    // Регистрируем схему в Mongoose, чтобы сервис мог работать с коллекцией
     SequelizeModule.forFeature([Statistics, User]),
   ],
   controllers: [StatisticsController],

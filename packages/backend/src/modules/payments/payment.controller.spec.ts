@@ -124,7 +124,7 @@ describe("PaymentController", () => {
       mockedAxios.post.mockResolvedValue({ data: { ok: true } });
       // Здесь мы не можем легко проверить axios внутри контроллера без доп. моков,
       // но проверяем, что метод возвращает { ok: true }
-      const result = await controller.webhook(update, "user-1");
+      const result = await controller.webhook(update);
       expect(result).toEqual({ ok: true });
     });
 
@@ -147,7 +147,7 @@ describe("PaymentController", () => {
         },
       };
       mockedAxios.post.mockResolvedValue({ data: { ok: true } });
-      await controller.webhook(update, "user-1");
+      await controller.webhook(update);
 
       // Проверка: вызвана ли логика сохранения платежа в БД
       expect(paymentService.webhookHandler).toHaveBeenCalledWith(payload);

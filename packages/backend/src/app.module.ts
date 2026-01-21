@@ -5,14 +5,12 @@ import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
 
 // Импорт бизнес-модулей
-// import { AuthModule } from "./modules/auth/auth.module";
 import { BreathingModule } from "./modules/breathing/breathing.module";
 import { StatisticsModule } from "./modules/statistic/statistics.module";
-// import { BotModule } from './modules/bot/bot.module';
-
 import { appConfig } from "./config/configuration";
 import { DatabaseModule } from "./database/database.module";
 import { PaymentModule } from "./modules/payments/payment.module";
+import { UserModule } from "./modules/user/user.module";
 
 const globalConfig = appConfig();
 
@@ -40,12 +38,11 @@ const globalConfig = appConfig();
       },
     ),
     DatabaseModule,
-    // 4. Бизнес-логика
-    // AuthModule,
-    // BotModule,
+
     BreathingModule,
     StatisticsModule,
     PaymentModule,
+    UserModule
   ],
   controllers: [],
   providers: [],

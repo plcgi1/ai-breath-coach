@@ -18,14 +18,14 @@ import { Technique } from "src/database/models/technique.model";
 export class BreathingController {
   constructor(private readonly breathingService: BreathingService) {}
 
-  @UseGuards(TelegramAuthGuard, PaymentGuard)
+  @UseGuards(TelegramAuthGuard)
   @Get("techniques")
   async getTechniques(@GetUser("id") userId: string): Promise<Technique[]> {
     const techniques = await this.breathingService.getList(userId);
     return techniques;
   }
 
-  @UseGuards(TelegramAuthGuard, PaymentGuard)
+  @UseGuards(TelegramAuthGuard)
   @Get("ready/:slug")
   async getReadyTechnique(@Param("slug") slug: string, @Req() req: any) {
     const technique = await this.breathingService.getTechniqueBySlug(

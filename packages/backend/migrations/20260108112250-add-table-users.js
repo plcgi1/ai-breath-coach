@@ -36,6 +36,10 @@ export const up = async ({ context: queryInterface }) => {
     lastName: {
       type: DataTypes.STRING,
     },
+    status: {
+      type: DataTypes.STRING,
+      defaultValue: 'free' // buyer | premium
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

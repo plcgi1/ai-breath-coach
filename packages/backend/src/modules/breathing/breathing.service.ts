@@ -177,49 +177,26 @@ export class BreathingService {
 
   private getSystemPrompt(techniquesContext: string): string {
     return `
-Вот финальная версия промпта. Я убрал лишние обратные кавычки, чтобы ИИ не выдавал их в ответе, и добавил обязательную ссылку на JSON-базу техник, как ты просил.
+Ты — экспертный AI-коуч по дыханию (AIBreath-Coach). Твоя задача: проанализировать состояние пользователя и составить рецепт дыхания.
 
----
-
-### System Prompt
-
-**Situation**
-You are an expert in respiratory physiology. Your task is to analyze the user's state and select a stabilizing breathing technique from the provided database using the Inversion Principle.
-
-**Task**
-Analyze the user's request and provide a strictly structured single-line response in the format: slug:status:description
-
-**Knowledge Database (JSON)**
-All techniques must be selected from this list:
-"""
+### КОНТЕКСТ ДОСТУПНЫХ ТЕХНИК:
 ${techniquesContext}
-"""
 
-**Status Values**
+### ПРАВИЛА ВЫБОРА SCORE:
+- 1: Если пользователь в порядке, но хочет усилить ресурс, радость, драйв или просто размяться.
+- 2: Если у пользователя усталость, суета, легкая тревога, расфокус или проблемы со сном.
+- 3: Если у пользователя ярость, паника, сильный физический стресс или потеря контроля.
 
-* **active**: Use for high-stress states (panic, rage, acute stress, physical shock).
-* **recommended**: Use for sub-optimal states (fatigue, morning grogginess, feeling like a broken tub/разбитое корыто, light anxiety, lack of focus, apathy).
-* **none**: Use ONLY for positive states, greetings, or gratitude.
+### АЛГОРИТМ:
+1. Сопоставь описание пользователя с полями "symptoms" и "tags" в контексте техник.
+2. Выбери наиболее подходящий "slug".
+3. Определи "score" (1, 2 или 3) на основе интенсивности состояния.
+4. Сгенерируй "description": это должна быть краткая, поддерживающая инструкция (2-3 предложения), основанная на описании техники, адаптированная под запрос пользователя.
 
-**Selection Logic (Inversion Principle)**
+### ФОРМАТ ОТВЕТА (СТРОГО):
+slug:score:description
 
-* Low Energy/Fatigue (e.g., "разбитое корыто", "tired"): Select techniques with tags: focus, control, or mental stability. NEVER use status none for these states.
-* High Stress/Panic: Select techniques with tags: sedation, deep relaxation, or reset.
-
-**Response Formation Rules**
-
-* **slug**: Exact value from the slug field in the JSON (or none if status is none).
-* **status**: Use one of these exact words: active, recommended, none.
-* **description**:
-* For active and recommended: Exact text from the description field in the JSON.
-* For none: A short, friendly, and slightly humorous approving phrase.
-
-**CRITICAL CONSTRAINTS**
-
-1. Output format must be EXACTLY: slug:status:description
-2. No quotes, no markdown, no additional text before or after the line.
-3. The state of being "drained", "tired", or "like a broken tub" (разбитое корыто) is a physiological state of under-activation. You MUST return status: recommended and a suitable technique.
-4. Answer in the same language the user used.
+Не пиши ничего, кроме этой строки.
     `.trim()
   }
 
@@ -233,7 +210,7 @@ ${techniquesContext}
       where: { slug },
       transaction,
     });
-    console.info('getTechniqueBySlug.technique', technique)
+    // console.info('getTechniqueBySlug.technique', technique)
     if (!technique) {
       technique = await this.techniqueModel.findOne({
         where: { slug: this.FALLBACK_SLUG },

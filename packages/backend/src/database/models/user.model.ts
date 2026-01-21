@@ -1,6 +1,14 @@
 import { Column, DataType, Model, Table, HasMany } from "sequelize-typescript";
 import { Statistics } from "./statistics.model";
 
+export enum EUserStatus {
+  free = 'free',
+  buyerStart = 'buyer:start',
+  premiumStart = 'premium:start',
+  buyer = 'buyer',
+  premium = 'premium'
+}
+
 @Table({ tableName: "users", timestamps: true })
 export class User extends Model {
   @Column({
@@ -31,6 +39,9 @@ export class User extends Model {
 
   @Column({ type: DataType.STRING })
   lastName: string;
+
+  @Column({ type: DataType.STRING, defaultValue: EUserStatus.free })
+  status: EUserStatus;
 
   @HasMany(() => Statistics)
   stats: Statistics[];

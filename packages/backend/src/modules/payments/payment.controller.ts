@@ -74,8 +74,8 @@ export class PaymentController {
   @Post("webhook")
   @UseGuards(TelegramWebhookGuard)
   @HttpCode(HttpStatus.OK)
-  async webhook(@Body() update: WebhookDto, @GetUser("id") userId: string) {
-    await this.paymentService.webhookHandler(update, userId);
+  async webhook(@Body() update: WebhookDto) {
+    await this.paymentService.webhookHandler(update);
 
     return { ok: true };
   }
@@ -87,11 +87,9 @@ export class PaymentController {
   async getWebhookOrder(@Query() query, @GetUser("id") userId: string) {
     const orders = await this.paymentService.getWebhookOrder(
       query.orderId,
-      userId,
     );
     const result = { status: EOrderStatus.pending };
     let paid = orders.filter((o) => o.status === EOrderStatus.paid);
-    console.info("paid--------------", paid);
     if (orders.length > 0 && paid.length === orders.length) {
       result.status = EOrderStatus.paid;
     }
