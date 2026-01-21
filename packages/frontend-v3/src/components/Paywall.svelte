@@ -2,7 +2,7 @@
   import { api } from '../lib/api';
   import { selectedTech } from '../lib/store/session';
   import { t } from '../lib/i18n';
-  import { lockedTechniques, unlockedTechniques } from '../lib/store/techniques';
+  import { lockedTechniques, purchasedTechniques } from '../lib/store/techniques';
   import { tg } from '../lib/telegram';
   import { pricing } from '../lib/store/pricing';
 
@@ -12,16 +12,6 @@
   let isChecking = false;
   let pollingInterval;
   let isClosing = false;
-
-  // Цены для MVP
-  const PRICE_SINGLE = $pricing[0].price;
-  const PRICE_AI = $pricing[1].price;
-
-  function calcBenefit(singlePrice, aiPrice) {
-    const totalPrice = ($unlockedTechniques.length + $lockedTechniques.length) * singlePrice;
-    const savings = totalPrice * 0.4;
-    return { savings };
-  }
 
   // Внутреннее состояние выбора в самом каталоге Paywall
   let localSelected = $selectedTech;
@@ -37,13 +27,14 @@
     if (isChecking) return;
     currentType = type; // Запоминаем, какая кнопка нажата
     try {
-      const { invoiceUrl, orderId } = await api.createOrder(type, localSelected.id);
-
+      const { invoiceUrl, orderId, status } = await api.createOrder(type, localSelected.id);
+      if (status) {
+        return;
+      }
       // Открываем платежную ссылку (если API её возвращает)
       if (invoiceUrl) {
         console.info('Opening payment URL:', invoiceUrl);
-        // TODO window.open(paymentUrl, '_blank');
-        // tg.openInvoice(invoiceUrl, paymentCallback);
+        tg.openInvoice(invoiceUrl, paymentCallback);
       }
 
       startPolling(orderId, type);
@@ -80,7 +71,6 @@
       show = false;
     }, 100);
   }
-  const { savings } = calcBenefit(PRICE_SINGLE, PRICE_AI);
 </script>
 
 {#if show}
@@ -101,7 +91,7 @@
           </div>
 
           <p class="offer-desc">{localSelected.description}</p>
-          <div class="price-tag small">{PRICE_SINGLE} ⭐</div>
+          <div class="price-tag small">{localSelected.price} ⭐</div>
           <button
             class="pay-btn secondary"
             on:click={() => {
@@ -129,7 +119,7 @@
             <h3>{@html $t('paywall.priceLabel')}</h3>
           </div>
           <p class="offer-desc">{@html $t('paywall.priceDescription')}</p>
-          <div class="price-tag small">{PRICE_AI} ⭐</div>
+          <div class="price-tag small">{$pricing.premiumAmount} ⭐</div>
 
           <button
             class="pay-btn"
@@ -146,7 +136,7 @@
             {/if}
           </button>
 
-          <p class="save-amount">{@html $t('paywall.economyIs')} ~{savings} ⭐</p>
+          <p class="save-amount">{@html $t('paywall.economyIs')} ~{$pricing.economyAmount} ⭐</p>
         </div>
       </div>
       <div class="paywall-footer-info">

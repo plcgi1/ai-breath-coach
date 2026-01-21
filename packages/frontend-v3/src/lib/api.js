@@ -56,7 +56,7 @@ export const api = {
   },
 
   async getPricing() {
-    const result = await fetchAPI('/pricing/list', {
+    const result = await fetchAPI('/breathing/prices', {
       method: 'GET'
     });
     return result;

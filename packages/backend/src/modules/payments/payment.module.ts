@@ -6,8 +6,6 @@ import { PaymentController } from "./payment.controller";
 import { Pricing } from "../../database/models/pricing.model";
 import { UserSubscriptions } from "../../database/models/user-subscriptions.model";
 import { User } from "../../database/models/user.model";
-import { PricingModule } from "../pricing/pricing.module";
-import { PricingService } from "../pricing/pricing.service";
 import { BreathingModule } from "../breathing/breathing.module";
 import { BreathingService } from "../breathing/breathing.service";
 import { StatisticsService } from "../statistic/statistics.service";
@@ -23,15 +21,9 @@ import { Statistics } from "../../database/models/statistics.model";
       Technique,
       Statistics,
     ]),
-    PricingModule,
     BreathingModule,
   ],
   controllers: [PaymentController],
-  providers: [
-    PaymentService,
-    PricingService,
-    BreathingService,
-    StatisticsService,
-  ],
+  providers: [PaymentService, BreathingService, StatisticsService],
 })
 export class PaymentModule {}

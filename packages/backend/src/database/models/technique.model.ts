@@ -59,6 +59,13 @@ export class Technique extends Model {
   })
   type: string;
 
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 45,
+  })
+  price: number;
+
   @HasMany(() => Statistics)
   stats: Statistics[];
 

@@ -11,19 +11,15 @@ export const up = async ({ context: queryInterface }) => {
       primaryKey: true,
       allowNull: false,
     },
+    orderId: {
+      type: DataTypes.UUID,
+      defaultValue: Sequelize.literal("uuid_generate_v4()"),
+      allowNull: false,
+    },
     userId: {
       type: DataTypes.UUID,
       references: {
         model: "users",
-        key: "id",
-      },
-      onDelete: "RESTRICT",
-      allowNull: false,
-    },
-    priceId: {
-      type: DataTypes.UUID,
-      references: {
-        model: "pricing",
         key: "id",
       },
       onDelete: "RESTRICT",
@@ -59,6 +55,10 @@ export const up = async ({ context: queryInterface }) => {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "pending",
+    },
+    amount: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,

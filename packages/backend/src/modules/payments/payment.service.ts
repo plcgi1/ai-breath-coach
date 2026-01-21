@@ -1,23 +1,27 @@
-// src/payment/payment.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
+import { ConfigService } from "@nestjs/config";
+import axios from "axios";
 import {
   EOrderStatus,
   EOrderType,
   UserSubscriptions,
 } from "../../database/models/user-subscriptions.model";
-import { ConfigService } from "@nestjs/config";
-import axios from "axios";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
 import { Sequelize } from "sequelize-typescript";
-import { PricingService } from "../pricing/pricing.service";
 import { addDays } from "../../utils/date";
 import { AppConfig } from "../../config/interfaces/config.interface";
 import { WebhookDto } from "./dto/webhook.dto";
 import { Pricing } from "src/database/models/pricing.model";
-
-// import { AppConfig } from "../config/interfaces/config.interface";
-// const appConfig = configService.get<AppConfig>("app");
+import {
+  BreathingService,
+  ETechniqueStatus,
+  ITechniqueListResponse,
+} from "../breathing/breathing.service";
+import { Transaction } from "sequelize";
+import { ETechniqueType, Technique } from "src/database/models/technique.model";
+import { randomUUID } from "node:crypto";
+import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 
 @Injectable()
 export class PaymentService {
@@ -27,8 +31,10 @@ export class PaymentService {
     @InjectModel(UserSubscriptions)
     private userSubscriptionsModel: typeof UserSubscriptions,
     private readonly sequelize: Sequelize,
-    private pricingService: PricingService,
+    private breathingService: BreathingService,
     private configService: ConfigService,
+    @InjectPinoLogger(PaymentService.name)
+    private readonly logger: PinoLogger,
   ) {
     const appConfig = configService.get<AppConfig>("app");
     const token = appConfig.authGuard.apiKey;
@@ -36,43 +42,67 @@ export class PaymentService {
   }
 
   async createInvoiceLink(dto: CreateInvoiceDto, userId: string) {
-    return await this.sequelize.transaction(async (t) => {
-      const prices = await this.pricingService.getList({
-        transaction: t,
-        priceType: dto.order,
-      });
-      if (!prices || prices.length === 0) {
-        throw new NotFoundException("Pricing plan not found");
-      }
-      const price = prices[0];
+    const techniques = await this.breathingService.getList(userId, true);
+    if (dto.order === EOrderType.single) {
+      return this._createInvoiceLinkSingle(
+        techniques,
+        dto.order,
+        dto.techId,
+        userId,
+      );
+    }
+    return this._createInvoiceLinkPremium(techniques, userId);
+  }
 
+  getCreatePaymentLinkPayload(orderId: string) {
+    const payload = {
+      oid: orderId,
+    };
+    const payloadJson = JSON.stringify(payload);
+    return payloadJson;
+  }
+
+  async _createInvoiceLinkSingle(
+    techniques: ITechniqueListResponse[],
+    order: EOrderType,
+    techId: string,
+    userId: string,
+  ) {
+    const orderId = randomUUID();
+    return await this.sequelize.transaction(async (t) => {
+      // если какимто боком пришел запрос с купленной техникой
+      const checkTech = techniques.find((t) => t.id === techId && t.purchase);
+      if (checkTech) {
+        return {
+          invoiceUrl: checkTech.purchase.orderUrl,
+          orderId: checkTech.purchase.orderId,
+          status: checkTech.purchase.status,
+        };
+      }
+      const tech = techniques.find((t) => t.id === techId);
       const userSubscription = await this.userSubscriptionsModel.create(
         {
           userId: userId,
-          priceId: price.id,
-          orderType: dto.order,
-          techId: dto.techId || null,
+          orderType: order,
+          techId: techId || null,
           startedAt: new Date(),
           expiredAt: addDays(new Date(), 30),
           status: EOrderStatus.pending,
+          amount: tech.price,
+          orderId,
         },
         { transaction: t },
       );
-
-      const payload = { oid: userSubscription.id };
-      if (dto.order == EOrderType.single && dto.techId) {
-        Object.assign(payload, { techId: dto.techId });
-      }
-      const payloadJson = JSON.stringify(payload);
+      const payloadJson = this.getCreatePaymentLinkPayload(orderId);
       let response;
       try {
         response = await axios.post(`${this.botApiUrl}/createInvoiceLink`, {
-          title: price.name,
-          description: `Activation of ${price.name} plan`,
+          title: tech.name,
+          description: `Activation of "${tech.name}"`,
           payload: payloadJson,
-          currency: price.currency,
+          currency: "XTR",
           prices: [
-            { label: price.name, amount: Math.round(Number(price.price)) },
+            { label: tech.name, amount: Math.round(Number(tech.price)) },
           ],
         });
 
@@ -81,13 +111,80 @@ export class PaymentService {
 
         return {
           invoiceUrl: response.data.result,
-          orderId: userSubscription.id,
+          orderId,
         };
       } catch (e) {
-        console.info("Telegram API Error:", e.response?.data || e.message);
-        // throw new BadRequestException(
-        //   "Telegram API Error: Failed to create invoice link",
-        // );
+        this.logger.error(
+          { error: e },
+          "_createInvoiceLinkSingle.Telegram API Error:",
+        );
+        throw e;
+      }
+    });
+  }
+
+  async _createInvoiceLinkPremium(
+    techniques: ITechniqueListResponse[],
+    userId: string,
+  ) {
+    const nonPurchasedTech = techniques.filter(
+      (item) => item.status === ETechniqueStatus.locked,
+    );
+    const freeTech = techniques.filter(
+      (item) => item.type === ETechniqueType.free,
+    );
+    const prices = this.breathingService.getCalculatedPrices(techniques);
+    const oneUnitPrice = prices.premiumAmount / nonPurchasedTech.length;
+    const orderId = randomUUID();
+    const startedAt = new Date();
+    const expiredAt = addDays(startedAt, 30);
+
+    const purchasedTechs = techniques.filter((tech) => tech.purchase);
+    if (purchasedTechs.length + freeTech.length === techniques.length) {
+      return {
+        status: EOrderStatus.pending,
+      };
+    }
+
+    return await this.sequelize.transaction(async (t) => {
+      const payloadJson = this.getCreatePaymentLinkPayload(orderId);
+      let response;
+      try {
+        response = await axios.post(`${this.botApiUrl}/createInvoiceLink`, {
+          title: "Premium",
+          description: `Activation of "Premium"`,
+          payload: payloadJson,
+          currency: "XTR",
+          prices: [{ label: "Premium", amount: prices.premiumAmount }],
+        });
+        const orderUrl = response.data.result;
+        const bulkData = nonPurchasedTech.map((tech) => {
+          return {
+            userId: userId,
+            orderType: EOrderType.premium,
+            techId: tech.id,
+            orderUrl,
+            orderId,
+            startedAt,
+            expiredAt,
+            status: EOrderStatus.pending,
+            amount: oneUnitPrice,
+          };
+        });
+
+        await this.userSubscriptionsModel.bulkCreate(bulkData, {
+          transaction: t,
+        });
+
+        return {
+          invoiceUrl: response.data.result,
+          orderId,
+        };
+      } catch (e) {
+        this.logger.error(
+          { error: e },
+          "_createInvoiceLinkPremium.Telegram API Error:",
+        );
         throw e;
       }
     });
@@ -109,28 +206,37 @@ export class PaymentService {
       return { ok: true };
     }
     const payload = JSON.parse(success.invoice_payload);
-    const invoice = await this.getWebhookOrder(payload.oid, userId);
-    if (success.total_amount !== invoice.price.price) {
+    const invoices = await this.getWebhookOrder(payload.oid, userId);
+    const amount = invoices.reduce((sum: number, item: UserSubscriptions) => {
+      return (sum = sum + item.amount);
+    }, 0);
+
+    if (success.total_amount !== amount) {
       throw new NotFoundException("Incorrect payment amount");
     }
-    invoice.expiredAt = addDays(new Date(), 30);
-    invoice.status = EOrderStatus.paid;
-    invoice.paidAt = new Date();
 
-    await invoice.save();
+    await this.userSubscriptionsModel.update(
+      {
+        expiredAt: addDays(new Date(), 30),
+        status: EOrderStatus.paid,
+        paidAt: new Date(),
+      },
+      { where: { orderId: payload.oid } },
+    );
 
     return { ok: true };
   }
 
-  async getWebhookOrder(orderId: string, userId: string) {
-    console.log("getWebhookOrder called with orderId:", orderId, userId);
-    const invoice = await this.userSubscriptionsModel.findOne({
-      where: { id: orderId, userId },
-      include: [{ model: Pricing }],
+  async getWebhookOrder(
+    orderId: string,
+    userId: string,
+  ): Promise<UserSubscriptions[]> {
+    const invoices = await this.userSubscriptionsModel.findAll({
+      where: { orderId, userId },
     });
-    if (!invoice) {
+    if (!invoices) {
       throw new NotFoundException("Invoice not found");
     }
-    return invoice;
+    return invoices;
   }
 }

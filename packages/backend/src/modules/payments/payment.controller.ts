@@ -23,7 +23,10 @@ import { TelegramAuthGuard } from "../../common/guards/telegram-auth.guard";
 import axios from "axios";
 import { ConfigService } from "@nestjs/config";
 import { BreathingService } from "../breathing/breathing.service";
-import { EOrderType } from "../../database/models/user-subscriptions.model";
+import {
+  EOrderStatus,
+  EOrderType,
+} from "../../database/models/user-subscriptions.model";
 import { ETechniqueType } from "src/database/models/technique.model";
 import { GetUser } from "src/common/decorators/user.decorator";
 import { WebhookDto } from "./dto/webhook.dto";
@@ -82,10 +85,16 @@ export class PaymentController {
   @UseGuards(TelegramAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getWebhookOrder(@Query() query, @GetUser("id") userId: string) {
-    const result = await this.paymentService.getWebhookOrder(
+    const orders = await this.paymentService.getWebhookOrder(
       query.orderId,
       userId,
     );
+    const result = { status: EOrderStatus.pending };
+    let paid = orders.filter((o) => o.status === EOrderStatus.paid);
+    console.info("paid--------------", paid);
+    if (orders.length > 0 && paid.length === orders.length) {
+      result.status = EOrderStatus.paid;
+    }
     return result;
   }
 }

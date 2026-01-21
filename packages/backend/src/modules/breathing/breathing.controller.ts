@@ -40,4 +40,12 @@ export class BreathingController {
   async getAi(@Body() body: AnalyzeDto, @GetUser("id") userId: string) {
     return this.breathingService.getTechniqueByModel(body.request, userId);
   }
+
+  @UseGuards(TelegramAuthGuard)
+  @Get("prices")
+  async getList(@GetUser("id") userId: string) {
+    const techniques = await this.breathingService.getList(userId, true);
+    const prices = this.breathingService.getCalculatedPrices(techniques);
+    return prices;
+  }
 }

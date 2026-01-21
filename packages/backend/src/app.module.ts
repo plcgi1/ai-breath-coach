@@ -13,7 +13,6 @@ import { StatisticsModule } from "./modules/statistic/statistics.module";
 import { appConfig } from "./config/configuration";
 import { DatabaseModule } from "./database/database.module";
 import { PaymentModule } from "./modules/payments/payment.module";
-import { PricingModule } from "./modules/pricing/pricing.module";
 
 const globalConfig = appConfig();
 
@@ -47,7 +46,6 @@ const globalConfig = appConfig();
     BreathingModule,
     StatisticsModule,
     PaymentModule,
-    PricingModule
   ],
   controllers: [],
   providers: [],

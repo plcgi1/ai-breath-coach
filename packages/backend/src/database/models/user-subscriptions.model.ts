@@ -30,16 +30,22 @@ export class UserSubscriptions extends Model {
   })
   id: string;
 
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+  })
+  orderId: string;
+
+  @Column({
+    type: DataType.BIGINT,
+    allowNull: false,
+  })
+  amount: number;
+
   @ForeignKey(() => User)
   @Column({ type: DataType.UUID, allowNull: false })
   userId: string;
-
-  @ForeignKey(() => Pricing)
-  @Column({ type: DataType.UUID, allowNull: false })
-  priceId: string;
-
-  @BelongsTo(() => Pricing)
-  price: Pricing;
 
   @ForeignKey(() => Technique)
   @Column({ type: DataType.UUID, allowNull: true })

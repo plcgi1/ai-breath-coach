@@ -6,7 +6,7 @@
   import { handleTouchStart, handleTouchMove, handleTouchEnd } from './lib/touch';
   import { session, selectedTech } from './lib/store/session';
   import { pricing } from './lib/store/pricing';
-  import { techniques, sortedTechniques, lockedTechniques, unlockedTechniques } from './lib/store/techniques';
+  import { techniques, sortedTechniques, unlockedTechniques } from './lib/store/techniques';
   import PracticeLibrary from './components/PracticeLibrary.svelte';
   import AIPanel from './components/AIPanel.svelte';
   import Paywall from './components/Paywall.svelte';
@@ -111,13 +111,16 @@
 
   onMount(async () => {
     initTelegram();
-    data = await api.getData();
-    $pricing = await api.getPricing();
 
-    $techniques = data.techniques;
+    data = await api.getData();
+    techniques.set(data.techniques);
+
+    const prices = await api.getPricing();
+    pricing.set(prices);
 
     stats = await api.getStats();
-    $selectedTech = data.techniques[0];
+    selectedTech.set(data.techniques[0]);
+
     loading = false;
   });
 
@@ -179,8 +182,11 @@
 
   async function handlePaymentSuccess(slug) {
     showPaywall = false;
+
     data = await api.getData();
+
     techniques.set(data.techniques);
+
     launchConfetti();
   }
 
@@ -289,7 +295,7 @@
       </footer>
     {:else}
       <PracticeLibrary
-        techniques={$lockedTechniques}
+        techniques={$techniques}
         selectedSlug={$selectedTech.slug}
         onSelect={onSelectLibrary}
         onStart={handleStart}

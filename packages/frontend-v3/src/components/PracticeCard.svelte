@@ -4,24 +4,24 @@
   export let onSelect;
   export let onStart;
 
-  $: status = tech.status === 'unlocked' ? 'paid' : 'locked';
+  // $: status = tech.status === 'unlocked' ? 'paid' : 'locked';
 </script>
 
 <div class="card {isActive ? 'active' : ''}" on:click={() => onSelect(tech)}>
   <div class="icon-box">
     <span class="icon">{tech.icon}</span>
-    {#if status === 'locked'}
+    {#if tech.status === 'locked'}
       <div class="lock-badge">⭐️ 45</div>
     {/if}
   </div>
 
   <div class="info">
     <h4>{tech.name}</h4>
-    <p>{tech.description || 'Техника для баланса и спокойствия'}</p>
+    <p>{tech.description}</p>
   </div>
 
   <div class="actions">
-    {#if status === 'paid'}
+    {#if tech.status === 'unlocked'}
       <button class="start-btn" on:click|stopPropagation={() => onStart(tech)}> ▶ </button>
     {:else}
       <button class="buy-btn">Купить</button>

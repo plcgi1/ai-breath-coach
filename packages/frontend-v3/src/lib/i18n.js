@@ -3,7 +3,7 @@ import translations from './i18n/translations';
 import { tgUser } from './telegram.js';
 
 const langCode = tgUser?.language_code || 'ru';
-
+console.info('langCode', langCode);
 export const locale = writable(langCode);
 export const locales = Object.keys(translations);
 

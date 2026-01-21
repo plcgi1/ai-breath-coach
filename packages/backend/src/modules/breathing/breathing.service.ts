@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
+import { Transaction, Op, WhereOptions } from "sequelize";
 import {
   ETechniqueType,
   Technique,
@@ -9,13 +10,13 @@ import { ModelFactory } from "../ai/ai.factory";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { selectTechniqueTool } from "./breathing.tools";
 import { Sequelize } from "sequelize-typescript";
-import { Transaction, where } from "sequelize";
 import { StatisticsService } from "../statistic/statistics.service";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import {
   EOrderStatus,
   UserSubscriptions,
 } from "../../database/models/user-subscriptions.model";
+import { calculateUpgradePrice } from "src/utils/price";
 
 type TGetTchBySlug = {
   score;
@@ -52,18 +53,66 @@ export class BreathingService {
     return technique;
   }
 
-  getInclude(userId: string) {
+  getInclude(userId: string, checkExpiresAt: boolean) {
+    const where: WhereOptions = {
+      userId,
+    };
+    if (checkExpiresAt) {
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+      where.expiredAt = {
+        [Op.gte]: now,
+        [Op.lte]: thirtyDaysAgo,
+      };
+    }
     return [
       {
         model: UserSubscriptions,
-        where: { userId },
+        where,
         required: false,
       },
     ];
   }
 
-  async getList(userId: string): Promise<ITechniqueListResponse[]> {
-    const include = this.getInclude(userId);
+  getCalculatedPrices(techniques: Technique[]) {
+    let totalAmount = 0;
+    let purchasedAmount = 0;
+    let purchasedCount = 0;
+    let nonfreeCount = 0;
+    techniques.forEach((item) => {
+      if (item.type === ETechniqueType.free) {
+        return;
+      }
+
+      totalAmount = totalAmount + (Number(item.price) || 0);
+      nonfreeCount++;
+      if (item.purchase && item.purchase.status === EOrderStatus.paid) {
+        purchasedAmount = purchasedAmount + (Number(item.price) || 0);
+        purchasedCount++;
+      }
+    });
+
+    const premiumAmount = calculateUpgradePrice({
+      totalCount: nonfreeCount,
+      purchasedCount: purchasedCount,
+      baseUnitPrice: techniques[0].price,
+      fullAllAccessPrice: totalAmount,
+    });
+    const economyAmount = totalAmount - premiumAmount;
+    return {
+      totalAmount,
+      purchasedAmount,
+      premiumAmount,
+      economyAmount,
+    };
+  }
+
+  async getList(
+    userId: string,
+    checkExpiresAt?: boolean,
+  ): Promise<ITechniqueListResponse[]> {
+    const include = this.getInclude(userId, checkExpiresAt);
     const techniques = await this.techniqueModel.findAll({
       include,
       order: ["sortBy"],

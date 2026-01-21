@@ -40,6 +40,11 @@ export const up = async ({ context: queryInterface }) => {
       allowNull: false,
       defaultValue: "premium",
     },
+    price: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 45,
+    },
     icon: {
       type: DataTypes.STRING,
       allowNull: false,

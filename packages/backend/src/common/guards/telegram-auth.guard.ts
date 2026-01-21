@@ -20,7 +20,7 @@ export class TelegramAuthGuard implements CanActivate {
   ) {}
 
   private async lazyReg(inputUser: TGUser) {
-    console.info("inputUser", inputUser);
+    // console.info("inputUser", inputUser);
     const [user] = await this.userModel.upsert(
       {
         externalId: inputUser.id.toString(),
