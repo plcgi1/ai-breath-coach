@@ -38,7 +38,7 @@ export class BreathingController {
   @UseGuards(TelegramAuthGuard, PaymentGuard)
   @Post("ai")
   async getAi(@Body() body: AnalyzeDto, @GetUser("id") userId: string) {
-    return this.breathingService.getTechniqueByModel(body.request, userId);
+    return this.breathingService.getTechniqueByModel(body.query, userId);
   }
 
   @UseGuards(TelegramAuthGuard)

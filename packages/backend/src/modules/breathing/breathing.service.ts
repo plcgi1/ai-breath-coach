@@ -34,6 +34,13 @@ export interface ITechniqueListResponse extends TTechniqueWithPurchase {
   status: ETechniqueStatus;
 }
 
+interface IIncludeInputOptions {
+  userId: string
+  checkExpiresAt: boolean
+  checkRequiredSubscriptions?: boolean
+  type?: ETechniqueType[]
+}
+
 @Injectable()
 export class BreathingService {
   private readonly FALLBACK_SLUG = "focus";
@@ -53,11 +60,14 @@ export class BreathingService {
     return technique;
   }
 
-  getInclude(userId: string, checkExpiresAt: boolean) {
+  getInclude(query: IIncludeInputOptions) {
+    query.checkRequiredSubscriptions = query.checkRequiredSubscriptions 
+      ? query.checkRequiredSubscriptions 
+      : false
     const where: WhereOptions = {
-      userId,
+      userId: query.userId,
     };
-    if (checkExpiresAt) {
+    if (query.checkExpiresAt) {
       const now = new Date();
       const thirtyDaysAgo = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
@@ -70,7 +80,7 @@ export class BreathingService {
       {
         model: UserSubscriptions,
         where,
-        required: false,
+        required: query.checkRequiredSubscriptions,
       },
     ];
   }
@@ -112,7 +122,7 @@ export class BreathingService {
     userId: string,
     checkExpiresAt?: boolean,
   ): Promise<ITechniqueListResponse[]> {
-    const include = this.getInclude(userId, checkExpiresAt);
+    const include = this.getInclude({ userId, checkExpiresAt });
     const techniques = await this.techniqueModel.findAll({
       include,
       order: ["sortBy"],
@@ -140,65 +150,90 @@ export class BreathingService {
     return status;
   }
 
-  private async getAvailableSlugsContext(): Promise<string> {
+  private async getAvailableSlugsContext(userId: string): Promise<string> {
     // 1. Получаем все активные техники из базы
+    const include = this.getInclude({ 
+      userId,
+      checkExpiresAt: true,
+      type: [ETechniqueType.free,ETechniqueType.premium]
+    })
     const techniques = await this.techniqueModel.findAll({
-      attributes: ["slug", "tags", "symptoms", "description"],
-    });
+      attributes: ["slug", "tags", "symptoms", "description", 'type'],
+      include
+    })
 
     // 2. Превращаем массив в компактную строку JSON
-    const response = techniques.map((row) => {
-      return row.toJSON();
-    });
+    const response = techniques
+      .filter((row) => {
+        return row.type === ETechniqueType.free || (row.purchase?.status === EOrderStatus.paid)
+      })
+      .map((row) => {
+        const json = row.toJSON();
+        delete json.purchase
+        return json
+      });
     return JSON.stringify(response, null, 2);
   }
 
   private getSystemPrompt(techniquesContext: string): string {
     return `
-Ты — профессиональный эксперт по физиологии дыхания. Твоя задача: проанализировать состояние пользователя и выдать строго структурированный ответ.
+Вот финальная версия промпта. Я убрал лишние обратные кавычки, чтобы ИИ не выдавал их в ответе, и добавил обязательную ссылку на JSON-базу техник, как ты просил.
 
-### БАЗА ТЕХНИК (Контекст):
+---
+
+### System Prompt
+
+**Situation**
+You are an expert in respiratory physiology. Your task is to analyze the user's state and select a stabilizing breathing technique from the provided database using the Inversion Principle.
+
+**Task**
+Analyze the user's request and provide a strictly structured single-line response in the format: slug:status:description
+
+**Knowledge Database (JSON)**
+All techniques must be selected from this list:
+"""
 ${techniquesContext}
+"""
 
-### ШАГ 1: ОПРЕДЕЛЕНИЕ SCORE
-Сверь запрос пользователя с полем 'symptoms' в базе:
-- **Score 1:** Состояние радости, успеха, драйва или спокойствия.
-- **Score 2:** Состояние суеты, расфокуса, мандража или легкой тревоги.
-- **Score 3:** Состояние ярости, паники, сильного гнева или физического шока.
+**Status Values**
 
-### ШАГ 2: ВЫБОР ТЕХНИКИ
-Выбери ОДНУ технику из базы, используя логику инверсии (противовеса):
-- Если Score 3 (Ярость/Паника) -> выбери технику с тегом "торможение" или "успокоение".
-- Если Score 2 (Суета/Расфокус) -> выбери технику с тегом "баланс" или "фокус".
-- Если Score 1 (Позитив) -> не выбирай технику, используй slug 'none'.
+* **active**: Use for high-stress states (panic, rage, acute stress, physical shock).
+* **recommended**: Use for sub-optimal states (fatigue, morning grogginess, feeling like a broken tub/разбитое корыто, light anxiety, lack of focus, apathy).
+* **none**: Use ONLY for positive states, greetings, or gratitude.
 
-### ШАГ 3: ФОРМИРОВАНИЕ ОТВЕТА (СТРОГО ОДНА СТРОКА)
-Выдай ответ в формате: \`slug:score:description\`
+**Selection Logic (Inversion Principle)**
 
-Где:
-1. **slug** — это значение из поля 'slug' выбранной техники (например: focus, calm или energy). Если Score 1, пиши 'none'.
-2. **score** — определенное тобой число 1, 2 или 3.
-3. **description** — для Score 2 и 3: возьми инструкцию из базы. Для Score 1: напиши одну короткую одобряющую фразу с легким юмором.
+* Low Energy/Fatigue (e.g., "разбитое корыто", "tired"): Select techniques with tags: focus, control, or mental stability. NEVER use status none for these states.
+* High Stress/Panic: Select techniques with tags: sedation, deep relaxation, or reset.
 
-### ВАЖНО:
-- Вместо слова "slug" подставляй реальный slug из базы (calm, focus или energy).
-- Не выдумывай посторонние истории (про бабу-ягу и т.д.). Будь лаконичен.
-- Твой ответ должен содержать ТОЛЬКО одну строку.
+**Response Formation Rules**
 
-ЗАПРОС ПОЛЬЗОВАТЕЛЯ: "{{userInput}}"
-        `.trim();
+* **slug**: Exact value from the slug field in the JSON (or none if status is none).
+* **status**: Use one of these exact words: active, recommended, none.
+* **description**:
+* For active and recommended: Exact text from the description field in the JSON.
+* For none: A short, friendly, and slightly humorous approving phrase.
+
+**CRITICAL CONSTRAINTS**
+
+1. Output format must be EXACTLY: slug:status:description
+2. No quotes, no markdown, no additional text before or after the line.
+3. The state of being "drained", "tired", or "like a broken tub" (разбитое корыто) is a physiological state of under-activation. You MUST return status: recommended and a suitable technique.
+4. Answer in the same language the user used.
+    `.trim()
   }
 
   async getTechniqueBySlug(
-    slug: string,
+    inputSlug: string,
     userId: string,
     transaction?: Transaction,
   ) {
+    const slug = inputSlug.replace(/_/g,'-')
     let technique = await this.techniqueModel.findOne({
       where: { slug },
       transaction,
     });
-
+    console.info('getTechniqueBySlug.technique', technique)
     if (!technique) {
       technique = await this.techniqueModel.findOne({
         where: { slug: this.FALLBACK_SLUG },
@@ -218,12 +253,13 @@ ${techniquesContext}
     userPrompt: string,
     userId: string,
   ): Promise<AiResponse> {
-    const techniquesContext = await this.getAvailableSlugsContext();
+    const techniquesContext = await this.getAvailableSlugsContext(userId);
     const systemInstruction = this.getSystemPrompt(techniquesContext);
     const aiModel = this.modelFactory.getOllamaModel({ temperature: 0.2 });
     const tools = [selectTechniqueTool];
     const modelWithTools = aiModel.bindTools(tools);
 
+    console.info('systemInstruction', systemInstruction)
     // Здесь мы формируем запрос к модели
     const response = await modelWithTools.invoke([
       new SystemMessage(systemInstruction),

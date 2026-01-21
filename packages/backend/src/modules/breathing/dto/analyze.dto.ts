@@ -7,5 +7,5 @@ export class AnalyzeDto {
   @MaxLength(500, {
     message: "Описание слишком длинное, попробуйте быть лаконичнее",
   })
-  request: string;
+  query: string;
 }

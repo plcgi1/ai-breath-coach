@@ -62,20 +62,28 @@ export const api = {
     return result;
   },
 
-  // TODO implement me
   async askAI(query) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Пример ответа от ИИ
-        resolve({
-          slug: 'lion',
-          name: 'Сила Льва',
-          icon: '🦁',
-          is_free: false,
-          settings: [{ inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 8 }]
-        });
-      });
+    const payload = {
+      query
+    };
+    const result = await fetchAPI('/breathing/ai', {
+      method: 'POST',
+      body: JSON.stringify(payload)
     });
+    console.log('askAI result:', result);
+    return result;
+    // return new Promise((resolve) => {
+    //   setTimeout(() => {
+    //     // Пример ответа от ИИ
+    //     resolve({
+    //       slug: 'lion',
+    //       name: 'Сила Льва',
+    //       icon: '🦁',
+    //       is_free: false,
+    //       settings: [{ inhale: 5, holdIn: 2, exhale: 2, holdOut: 0, rounds: 8 }]
+    //     });
+    //   });
+    // });
   },
 
   // TODO implement me
