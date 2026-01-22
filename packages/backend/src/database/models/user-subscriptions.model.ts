@@ -19,6 +19,7 @@ export enum EOrderStatus {
   pending = "pending",
   paid = "paid",
   cancelled = "cancelled",
+  expired = 'expired'
 }
 
 @Table({ tableName: "user_subscription", timestamps: true })
@@ -46,6 +47,9 @@ export class UserSubscriptions extends Model {
   @ForeignKey(() => User)
   @Column({ type: DataType.UUID, allowNull: false })
   userId: string;
+
+  @BelongsTo(() => User)
+  user: User;
 
   @ForeignKey(() => Technique)
   @Column({ type: DataType.UUID, allowNull: true })

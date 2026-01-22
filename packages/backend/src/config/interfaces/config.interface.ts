@@ -30,4 +30,5 @@ export interface AppConfig {
   logging: LoggingConfig;
   ollama: OllamaConfig;
   authGuard: AuthGuardConfig;
+  cron: string
 }

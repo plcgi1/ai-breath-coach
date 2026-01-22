@@ -28,5 +28,6 @@ import { UserService } from "../user/user.service";
   ],
   controllers: [PaymentController],
   providers: [PaymentService, BreathingService, StatisticsService, UserService],
+  exports: [PaymentService]
 })
 export class PaymentModule {}

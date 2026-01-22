@@ -3,7 +3,6 @@ import { ConfigModule } from "@nestjs/config";
 import { LoggerModule } from "nestjs-pino";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
-
 // Импорт бизнес-модулей
 import { BreathingModule } from "./modules/breathing/breathing.module";
 import { StatisticsModule } from "./modules/statistic/statistics.module";
@@ -11,6 +10,7 @@ import { appConfig } from "./config/configuration";
 import { DatabaseModule } from "./database/database.module";
 import { PaymentModule } from "./modules/payments/payment.module";
 import { UserModule } from "./modules/user/user.module";
+import { CronModule } from "./modules/cron/cron.module";
 
 const globalConfig = appConfig();
 
@@ -37,6 +37,7 @@ const globalConfig = appConfig();
         serveRoot: "/stat", // Второе приложение по пути /stats
       },
     ),
+    CronModule,
     DatabaseModule,
 
     BreathingModule,

@@ -51,7 +51,7 @@ export class UserService {
     return data;
   }
 
-  async updateStatus(status: EUserStatus, userId: string, transaction?: Transaction) {
+  async updateStatus(status: EUserStatus, userId: string | string[], transaction?: Transaction) {
     await this.userModel.update(
         { status },
         { where: { id: userId }, transaction }

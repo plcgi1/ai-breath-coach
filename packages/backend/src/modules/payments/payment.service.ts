@@ -12,18 +12,17 @@ import { Sequelize } from "sequelize-typescript";
 import { addDays } from "../../utils/date";
 import { AppConfig } from "../../config/interfaces/config.interface";
 import { WebhookDto } from "./dto/webhook.dto";
-import { Pricing } from "src/database/models/pricing.model";
 import {
   BreathingService,
   ETechniqueStatus,
   ITechniqueListResponse,
 } from "../breathing/breathing.service";
-import { Transaction } from "sequelize";
-import { ETechniqueType, Technique } from "src/database/models/technique.model";
+import { Op, Transaction, WhereOptions } from "sequelize";
+import { ETechniqueType } from "src/database/models/technique.model";
 import { randomUUID } from "node:crypto";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import { UserService } from "../user/user.service";
-import { EUserStatus } from "src/database/models/user.model";
+import { EUserStatus, User } from "src/database/models/user.model";
 
 @Injectable()
 export class PaymentService {
@@ -265,5 +264,43 @@ export class PaymentService {
       throw new NotFoundException("Invoice not found");
     }
     return invoices;
+  }
+
+  async getExpiredOrders(transaction?: Transaction) {
+    const now = new Date();
+    const where: WhereOptions = {
+      expiredAt: {
+        [Op.lte]: now
+      }
+    }
+    
+    const invoices = await this.userSubscriptionsModel.findAll({
+      where,
+      include: [
+        {
+          model: User
+        }
+      ],
+      transaction
+    });
+    return invoices
+  }
+
+  getUserService (): UserService {
+    return this.userService
+  }
+
+  async updateOrderStatus(invoices: UserSubscriptions[], status: EOrderStatus, transaction?: Transaction) {
+    await this.userSubscriptionsModel.update(
+      {
+        status
+      },
+      {
+        where: {
+          id: invoices.map(inv => inv.id)
+        },
+        transaction
+      }
+    )
   }
 }

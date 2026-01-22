@@ -9,6 +9,8 @@ export const defaultConfig: AppConfig = {
   port: parseInt(process.env.PORT, 10) || 4848,
   version: pack.version,
   ip: "0.0.0.0",
+  // second minute hour day-of-month months day-of-week
+  cron: '* * 00 * * *',
   logging: {
     level: "debug",
     transport: {
