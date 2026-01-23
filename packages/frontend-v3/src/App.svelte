@@ -5,8 +5,9 @@
   import { api } from './lib/api';
   import { handleTouchStart, handleTouchMove, handleTouchEnd } from './lib/touch';
   import { session, selectedTech } from './lib/store/session';
-  import { loadProfile } from './lib/store/user.js'
+  import { loadProfile } from './lib/store/user.js';
   import { pricing } from './lib/store/pricing';
+  import { stats } from './lib/store/stats.js';
   import { techniques, sortedTechniques, unlockedTechniques } from './lib/store/techniques';
   import PracticeLibrary from './components/PracticeLibrary.svelte';
   import AIPanel from './components/AIPanel.svelte';
@@ -19,7 +20,6 @@
   import TabBar from './components/TabBar.svelte';
 
   let data = { techniques: [] };
-  let stats = { total: 0, today: 0, history: [] };
   let loading = true;
   let showPaywall = false;
   let showStats = false;
@@ -119,9 +119,11 @@
     const prices = await api.getPricing();
     pricing.set(prices);
 
-    loadProfile()
+    loadProfile();
 
-    stats = await api.getStats();
+    const statsData = await api.getStats();
+    stats.set(statsData.data);
+
     selectedTech.set(data.techniques[0]);
 
     loading = false;
@@ -146,8 +148,10 @@
         if (s.holdOut > 0) await runPhase(i18n('homepage.holdOut'), s.holdOut, 220);
       }
     }
-    await api.logSession($selectedTech.slug);
-    stats = await api.getStats();
+    await api.logSession($selectedTech.id);
+    const statsData = await api.getStats();
+    stats.set(statsData.data);
+
     scheduleReminder(); // Планируем уведомление после успеха
     stopExercise();
   }
@@ -223,7 +227,7 @@
   }
 
   function onShowAIPanelButtonClick() {
-    showPaywall = true    
+    showPaywall = true;
   }
 
   $: scale = (() => {
@@ -312,7 +316,7 @@
   {/if}
 
   {#if showStats}
-    <Stats bind:show={showStats} {stats} {handleTouchStart} {handleTouchMove} {handleTouchEnd} />
+    <Stats bind:show={showStats} {handleTouchStart} {handleTouchMove} {handleTouchEnd} />
   {/if}
 
   {#if showPaywall}

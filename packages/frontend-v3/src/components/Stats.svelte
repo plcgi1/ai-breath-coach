@@ -2,10 +2,9 @@
   import { fly, fade } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { t } from '../lib/i18n';
-
+  import { todayStats, stats } from '../lib/store/stats';
   export let show = false;
 
-  export let stats = { today: 0, total: 0, history: [] };
   export let handleTouchStart;
   export let handleTouchMove;
   export let handleTouchEnd;
@@ -24,21 +23,21 @@
     <div class="stats-grid">
       <div class="stat-item">
         <small>{@html $t('stats.today')}</small>
-        <b>{stats.today}</b>
+        <b>{$todayStats}</b>
       </div>
       <div class="stat-item">
         <small>{@html $t('stats.total')}</small>
-        <b>{stats.total}</b>
+        <b>{$stats.length}</b>
       </div>
     </div>
 
     <div class="history">
       <p>{@html $t('stats.recentPractices')}</p>
-      {#each stats.history as item}
+      {#each $stats as item}
         <div class="history-row">
-          <span>{item.slug === 'calm' ? '🌊' : item.slug === 'lion' ? '🦁' : '🧘'}</span>
+          <span>{item.technique.icon} {item.technique.slug}</span>
           <span
-            >{new Date(item.date).toLocaleTimeString([], {
+            >{new Date(item.createdAt).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit'
             })}</span
@@ -121,6 +120,27 @@
     padding: 20px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    /* v1 */
+    text-align: left;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Скролл и высота */
+    max-height: 260px;
+    overflow-y: auto;
+    /* Эффект затухания (маска) */
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    /* Для того чтобы маска работала корректно при скролле */
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+    /* Настройки скроллбара */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(129, 140, 248, 0.5) transparent;
+  }
+  .history::-webkit-scrollbar {
+    width: 0px;
   }
   .history p {
     margin: 0 0 12px 0;

@@ -2,8 +2,8 @@
   import { api } from '../lib/api';
   import { fade, fly } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { userProfile } from '../lib/store/user.js'
-  import { UStatus } from '../lib/enums/user'
+  import { userProfile } from '../lib/store/user.js';
+  import { UStatus } from '../lib/enums/user';
   import { selectedTech } from '../lib/store/session';
   import { t } from '../lib/i18n';
 
@@ -13,7 +13,7 @@
   let aiRecommendation = null; // Для хранения ответа от ИИ
 
   export let techniques = [];
-  export let onShowPanelButtonClick = () => {}
+  export let onShowPanelButtonClick = () => {};
   export let handleTouchStart = () => {};
   export let handleTouchMove = () => {};
   export let handleTouchEnd = () => {};
@@ -48,11 +48,11 @@
   }
 
   function onShowPanel() {
-    if($userProfile.status !== UStatus.premium) {
-      onShowPanelButtonClick()
-      return
+    if ($userProfile.status !== UStatus.premium) {
+      onShowPanelButtonClick();
+      return;
     }
-    showAIModal = true
+    showAIModal = true;
   }
 </script>
 
@@ -122,9 +122,7 @@
     </div>
   </div>
 {:else}
-  <button 
-    on:click={onShowPanel} 
-    style="cursor: pointer">
+  <button on:click={onShowPanel} style="cursor: pointer">
     {@html $t('aipanel.mindStream')}
   </button>
 {/if}

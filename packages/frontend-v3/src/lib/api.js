@@ -80,21 +80,34 @@ export const api = {
     return result;
   },
 
-  // TODO implement me
-  async logSession(slug) {
-    const history = JSON.parse(localStorage.getItem('nebula_history') || '[]');
-    history.push({ slug, date: new Date().toISOString() });
-    localStorage.setItem('nebula_history', JSON.stringify(history));
+  async getStats() {
+    const result = await fetchAPI('/statistics/list', {
+      method: 'GET'
+    });
+    return result;
+
+    // const history = JSON.parse(localStorage.getItem('nebula_history') || '[]');
+    // const today = new Date().toDateString();
+    // return {
+    //   total: history.length,
+    //   today: history.filter((s) => new Date(s.date).toDateString() === today).length,
+    //   history: history.slice(-5).reverse()
+    // };
   },
 
   // TODO implement me
-  async getStats() {
-    const history = JSON.parse(localStorage.getItem('nebula_history') || '[]');
-    const today = new Date().toDateString();
-    return {
-      total: history.length,
-      today: history.filter((s) => new Date(s.date).toDateString() === today).length,
-      history: history.slice(-5).reverse()
+  async logSession(techId) {
+    const payload = {
+      techId
     };
+    const result = await fetchAPI('/statistics', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    return result;
+
+    // const history = JSON.parse(localStorage.getItem('nebula_history') || '[]');
+    // history.push({ slug, date: new Date().toISOString() });
+    // localStorage.setItem('nebula_history', JSON.stringify(history));
   }
 };

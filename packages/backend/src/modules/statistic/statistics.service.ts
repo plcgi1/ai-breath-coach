@@ -16,7 +16,7 @@ export class StatisticsService {
     userId: string,
     techId: string,
     metadata: any,
-    transaction: Transaction,
+    transaction?: Transaction,
   ) {
     return await this.statModel.create(
       { userId, techId, metadata },
@@ -44,7 +44,7 @@ export class StatisticsService {
     return [
       {
         model: Technique,
-        attributes: ["id", "name", "description", "tags"],
+        attributes: ["id", "name", "description", "tags", 'icon', 'slug'],
       },
     ];
   }
@@ -59,6 +59,7 @@ export class StatisticsService {
     const data = await this.statModel.findAll({
       where,
       include,
+      order: [['createdAt', 'DESC']]
     });
     const count = await this.statModel.count({
       where,

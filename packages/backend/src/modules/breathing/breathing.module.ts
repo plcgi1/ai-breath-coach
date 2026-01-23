@@ -5,7 +5,6 @@ import { AiModule } from "../ai/ai.module";
 import { DatabaseModule } from "../../database/database.module";
 import { Technique } from "../../database/models/technique.model";
 import { SequelizeModule } from "@nestjs/sequelize";
-import { StatisticsModule } from "../statistic/statistics.module";
 import { Pricing } from "../../database/models/pricing.model";
 import { User } from "../../database/models/user.model";
 import { UserSubscriptions } from "../../database/models/user-subscriptions.model";
@@ -15,10 +14,10 @@ import { UserSubscriptions } from "../../database/models/user-subscriptions.mode
     SequelizeModule.forFeature([Technique, Pricing, User, UserSubscriptions]),
     DatabaseModule,
     AiModule,
-    StatisticsModule,
   ],
 
   controllers: [BreathingController],
   providers: [BreathingService],
+  exports: [BreathingService]
 })
 export class BreathingModule {}

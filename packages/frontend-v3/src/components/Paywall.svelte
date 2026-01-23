@@ -2,8 +2,8 @@
   import { api } from '../lib/api';
   import { selectedTech } from '../lib/store/session';
   import { t, i18n } from '../lib/i18n';
-  import { userProfile, loadProfile } from '../lib/store/user.js'
-  import { UStatus } from '../lib/enums/user'
+  import { userProfile, loadProfile } from '../lib/store/user.js';
+  import { UStatus } from '../lib/enums/user';
   import { tg } from '../lib/telegram';
   import { pricing } from '../lib/store/pricing';
 
@@ -38,9 +38,9 @@
           } else if (status === 'failed') {
             // Ошибка (например, недостаточно звезд)
             alert(i18n('paywall.paymentError'));
-          }          
+          }
         });
-      }      
+      }
     } catch (e) {
       console.error('Error:', e);
       isChecking = false;
@@ -57,7 +57,7 @@
           clearInterval(pollingInterval);
           isChecking = false;
           onPaymentSuccess(type);
-          loadProfile(true)
+          loadProfile(true);
           close();
         }
       } catch (e) {
@@ -102,7 +102,9 @@
               currentType = 'single';
               handlePayment('single');
             }}
-            disabled={isChecking || localSelected.status === 'unlocked' ||  $userProfile.status === UStatus.premium}
+            disabled={isChecking ||
+              localSelected.status === 'unlocked' ||
+              $userProfile.status === UStatus.premium}
           >
             {#if isChecking && currentType === 'single'}
               <div class="spinner"></div>

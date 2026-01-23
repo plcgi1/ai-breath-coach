@@ -10,7 +10,6 @@ import { ModelFactory } from "../ai/ai.factory";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { selectTechniqueTool } from "./breathing.tools";
 import { Sequelize } from "sequelize-typescript";
-import { StatisticsService } from "../statistic/statistics.service";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import {
   EOrderStatus,
@@ -50,7 +49,6 @@ export class BreathingService {
     @InjectModel(Technique)
     private techniqueModel: typeof Technique,
     private readonly sequelize: Sequelize,
-    private readonly statisticsService: StatisticsService,
     @InjectPinoLogger(BreathingService.name)
     private readonly logger: PinoLogger,
   ) {}
@@ -226,12 +224,7 @@ slug:score:description
         transaction,
       });
     }
-    await this.statisticsService.logActivity(
-      userId,
-      technique.id,
-      { score: 1, description: "Ready breath" }, // metadata
-      transaction,
-    );
+    
     return technique;
   }
 
@@ -245,7 +238,6 @@ slug:score:description
     const tools = [selectTechniqueTool];
     const modelWithTools = aiModel.bindTools(tools);
 
-    console.info('systemInstruction', systemInstruction)
     // Здесь мы формируем запрос к модели
     const response = await modelWithTools.invoke([
       new SystemMessage(systemInstruction),
