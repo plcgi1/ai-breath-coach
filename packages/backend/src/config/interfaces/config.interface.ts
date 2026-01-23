@@ -26,6 +26,9 @@ export interface AppConfig {
   env: string;
   port: number;
   version: string;
+  appName: string;
+  appURL: string;
+  supportChannel: Record<string, string>;
   ip: string;
   logging: LoggingConfig;
   ollama: OllamaConfig;

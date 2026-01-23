@@ -7,7 +7,14 @@ dotenv.config();
 export const defaultConfig: AppConfig = {
   env: process.env.NODE_ENV || "development",
   port: parseInt(process.env.PORT, 10) || 4848,
+  appName: 'Ether AI',
+  appURL: process.env.TELEGRAM_APP_URL,
+  supportChannel: {
+    en: process.env.SUPPORT_CHANNEL_en,
+    ru: process.env.SUPPORT_CHANNEL_ru,
+  },
   version: pack.version,
+
   ip: "0.0.0.0",
   // second minute hour day-of-month months day-of-week
   cron: '* * 00 * * *',

@@ -5,6 +5,7 @@
   import { api } from './lib/api';
   import { handleTouchStart, handleTouchMove, handleTouchEnd } from './lib/touch';
   import { session, selectedTech } from './lib/store/session';
+  import { loadProfile } from './lib/store/user.js'
   import { pricing } from './lib/store/pricing';
   import { techniques, sortedTechniques, unlockedTechniques } from './lib/store/techniques';
   import PracticeLibrary from './components/PracticeLibrary.svelte';
@@ -118,6 +119,8 @@
     const prices = await api.getPricing();
     pricing.set(prices);
 
+    loadProfile()
+
     stats = await api.getStats();
     selectedTech.set(data.techniques[0]);
 
@@ -219,6 +222,10 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  function onShowAIPanelButtonClick() {
+    showPaywall = true    
+  }
+
   $: scale = (() => {
     let scale = 1.0;
     switch ($session.phase) {
@@ -275,6 +282,7 @@
             <div class="ai-trigger-container">
               <AIPanel
                 techniques={$sortedTechniques}
+                onShowPanelButtonClick={onShowAIPanelButtonClick}
                 {handleTouchStart}
                 {handleTouchMove}
                 {handleTouchEnd}

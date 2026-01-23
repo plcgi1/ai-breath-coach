@@ -1,8 +1,9 @@
 <script>
   import { api } from '../lib/api';
   import { selectedTech } from '../lib/store/session';
-  import { t } from '../lib/i18n';
-  import { lockedTechniques, purchasedTechniques } from '../lib/store/techniques';
+  import { t, i18n } from '../lib/i18n';
+  import { userProfile, loadProfile } from '../lib/store/user.js'
+  import { UStatus } from '../lib/enums/user'
   import { tg } from '../lib/telegram';
   import { pricing } from '../lib/store/pricing';
 
@@ -17,12 +18,6 @@
   let localSelected = $selectedTech;
   let currentType = null; // Новый флаг для локального спиннера
 
-  function paymentCallback(invoicePayload) {
-    // TODO для вызова после TG
-    console.info('Payment callback received with payload:', invoicePayload);
-    // Здесь можно обработать успешный платеж, если нужно
-  }
-
   async function handlePayment(type) {
     if (isChecking) return;
     currentType = type; // Запоминаем, какая кнопка нажата
@@ -33,11 +28,19 @@
       }
       // Открываем платежную ссылку (если API её возвращает)
       if (invoiceUrl) {
-        console.info('Opening payment URL:', invoiceUrl);
-        tg.openInvoice(invoiceUrl, paymentCallback);
-      }
-
-      startPolling(orderId, type);
+        tg.openInvoice(invoiceUrl, (status) => {
+          startPolling(orderId, type);
+          if (status === 'cancelled') {
+            // Сюда попадаем, если нажали "Закрыть"
+            // Вебхук на сервер НЕ отправляется
+            // забьем эту тему - руками проверю если что
+            alert(i18n('paywall.paymentCancelled'));
+          } else if (status === 'failed') {
+            // Ошибка (например, недостаточно звезд)
+            alert(i18n('paywall.paymentError'));
+          }          
+        });
+      }      
     } catch (e) {
       console.error('Error:', e);
       isChecking = false;
@@ -54,6 +57,7 @@
           clearInterval(pollingInterval);
           isChecking = false;
           onPaymentSuccess(type);
+          loadProfile(true)
           close();
         }
       } catch (e) {
@@ -98,7 +102,7 @@
               currentType = 'single';
               handlePayment('single');
             }}
-            disabled={isChecking || localSelected.status === 'unlocked'}
+            disabled={isChecking || localSelected.status === 'unlocked' ||  $userProfile.status === UStatus.premium}
           >
             {#if isChecking && currentType === 'single'}
               <div class="spinner"></div>
@@ -127,7 +131,7 @@
               currentType = 'premium';
               handlePayment('premium');
             }}
-            disabled={isChecking}
+            disabled={isChecking || $userProfile.status === UStatus.premium}
           >
             {#if isChecking && currentType === 'premium'}
               <div class="spinner"></div>

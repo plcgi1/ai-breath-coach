@@ -59,7 +59,8 @@ export default {
     'paywall.economyIs': 'Economy is',
     'paywall.30daysTip': 'All prices are active in 30 days from payment date',
     'paywall.tipSubscription': 'You can continue subscription manually',
-
+    'paywall.paymentCancelled': 'Payment cancelled. You can purchase again any time.',
+    'paywall.paymentError':'Payment error',
     'tabbar.main': 'Main',
     'tabbar.practices': 'Practices',
 
@@ -129,7 +130,9 @@ export default {
     'paywall.30daysTip': 'Все тарифы действуют 30 дней с момента оплаты',
     'paywall.tipSubscription':
       'Подписка не продлевается автоматически. Вы сами решите, когда продлить доступ',
-
+    'paywall.paymentCancelled': 'Платеж отменен. Вы можете вернуться к покупке в любое время.',
+    'paywall.paymentError':'Произошла ошибка при оплате.',
+    
     'tabbar.main': 'Главная',
     'tabbar.practices': 'Практики',
 

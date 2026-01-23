@@ -11,6 +11,7 @@ import { DatabaseModule } from "./database/database.module";
 import { PaymentModule } from "./modules/payments/payment.module";
 import { UserModule } from "./modules/user/user.module";
 import { CronModule } from "./modules/cron/cron.module";
+import { BotModule } from "./modules/bot/bot.module";
 
 const globalConfig = appConfig();
 
@@ -37,6 +38,7 @@ const globalConfig = appConfig();
         serveRoot: "/stat", // Второе приложение по пути /stats
       },
     ),
+    BotModule,
     CronModule,
     DatabaseModule,
 
